@@ -1,0 +1,171 @@
+/* Full page background */
+.fyp-bg {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #ffe0ec 0%, #f3e7ff 100%);
+    font-family: 'Signika', 'Poppins', 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 70px;
+  }
+  
+  /* Top Bar */
+  .fyp-topbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 1.2rem 1rem 0.5rem 1rem;
+    gap: 0.7rem;
+  }
+  
+  .fyp-search-icon, .fyp-user-icon {
+    color: #a685e2;
+    font-size: 1.3rem;
+  }
+  
+  .fyp-search {
+    flex: 1;
+    border: none;
+    border-radius: 1.2rem;
+    background: #fff;
+    padding: 0.7rem 1.2rem;
+    font-size: 1rem;
+    outline: none;
+    box-shadow: 0 2px 8px rgba(166, 133, 226, 0.06);
+  }
+  
+ 
+  
+  /* Feed */
+  .fyp-feed {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  /* CARD must take FULL WIDTH! */
+  .fyp-card {
+    background: #fff;
+    border-radius: 1.5rem;
+    box-shadow: 0 2px 8px 0 rgba(166, 133, 226, 0.10);
+    width: 60%;
+    max-width: 700px;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 1.5rem auto 0 auto;
+    overflow: hidden;
+  }
+  
+  /* Inside card */
+  .fyp-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 1rem 1rem 0.5rem 1rem;
+  }
+  
+  .fyp-card-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e26ca5;
+  }
+  
+  .fyp-card-user {
+    font-weight: 700;
+    color: #a685e2;
+    font-size: 1.1rem;
+  }
+  
+  .fyp-card-location {
+    font-size: 0.9rem;
+    color: #e26ca5;
+  }
+  
+  .fyp-card-menu {
+    margin-left: auto;
+    color: #a685e2;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
+  .fyp-card-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-top-left-radius: 1.5rem;
+    border-top-right-radius: 1.5rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    object-fit: cover;
+  }
+  
+  .fyp-card-actions {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.7rem 0.5rem 1rem 0.5rem;
+    color: #a685e2;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  
+  .fyp-card-actions svg {
+    margin-right: 0.3rem;
+  }
+  
+  /* Bottom Navigation */
+  .fyp-bottom-nav {
+    width: 100%;
+    background: #fff;
+    box-shadow: 0 -2px 8px rgba(166, 133, 226, 0.10);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.7rem 0;
+    z-index: 100;
+    border-top-left-radius: 1.2rem;
+    border-top-right-radius: 1.2rem;
+    margin-top: 2rem;
+  }
+  
+  .fyp-bottom-plus {
+    background: linear-gradient(90deg, #e26ca5 0%, #a685e2 100%);
+    color: #fff;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 2px 8px rgba(226, 108, 165, 0.10);
+    margin-top: -22px;
+    border: 4px solid #fff;
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 600px) {
+    .fyp-topbar, .fyp-stories, .fyp-feed, .fyp-bottom-nav {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .fyp-card {
+      width: 90%;
+      max-width: 98vw;
+      min-width: unset;
+    }
+  }
+  
+  #root {
+    width: 86vw;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #ffe0ec 0%, #f3e7ff 100%);
+  }

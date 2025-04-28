@@ -1,0 +1,114 @@
+.newpost-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255, 224, 236, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.newpost-card {
+  background: #fff;
+  border-radius: 2.5rem;
+  box-shadow: 0 8px 32px 0 rgba(166, 133, 226, 0.18);
+  padding: 3rem 2.5rem;
+  width: 95vw;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.newpost-title {
+  color: #a685e2;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.newpost-label {
+  color: #e26ca5;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.newpost-input {
+  margin-bottom: 1rem;
+}
+
+.newpost-preview {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 1.2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px 0 rgba(226, 108, 165, 0.10);
+}
+
+.newpost-textarea {
+  border-radius: 1.2rem;
+  border: 1px solid #e26ca5;
+  padding: 1rem;
+  font-size: 1rem;
+  min-height: 100px;
+  margin-bottom: 1.5rem;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.newpost-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.newpost-cancel, .newpost-submit {
+  border: none;
+  border-radius: 1.2rem;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.newpost-cancel {
+  background: #f8f6fa;
+  color: #a685e2;
+}
+
+.newpost-cancel:hover {
+  background: #e26ca5;
+  color: #fff;
+}
+
+.newpost-submit {
+  background: linear-gradient(90deg, #e26ca5 0%, #a685e2 100%);
+  color: #fff;
+}
+
+.newpost-submit:hover {
+  background: linear-gradient(90deg, #a685e2 0%, #e26ca5 100%);
+}
+
+.newpost-file-btn {
+  display: inline-block;
+  background: linear-gradient(90deg, #e26ca5 0%, #a685e2 100%);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 1.2rem;
+  padding: 0.7rem 1.5rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  text-align: center;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px 0 rgba(226, 108, 165, 0.10);
+  border: none;
+  font-size: 1rem;
+}
+.newpost-file-btn:hover {
+  background: linear-gradient(90deg, #a685e2 0%, #e26ca5 100%);
+}

@@ -1,0 +1,146 @@
+/* Import Signika font */
+@import url('https://fonts.googleapis.com/css2?family=Signika:wght@400;600;700&display=swap');
+
+body, .login-bg {
+  font-family: 'Signika', 'Poppins', 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #ffe0ec 0%, #f3e7ff 100%);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.login-bg {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 60px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.login-header h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #a685e2;
+  margin: 0;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 8px #f3e7ff;
+}
+
+.login-slogan {
+  font-size: 1.1rem;
+  color: #e26ca5;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  letter-spacing: 1px;
+}
+
+form {
+  background: #fff;
+  border-radius: 2rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+  max-width: 350px;
+  width: 100%;
+  margin: 0 auto 60px auto;
+  padding: 2.5rem 2rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s;
+}
+
+form:hover {
+  box-shadow: 0 16px 40px 0 rgba(31, 38, 135, 0.18);
+}
+
+form input {
+  width: 100%;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.2rem;
+  border: none;
+  border-radius: 1.2rem;
+  background: #f8f6fa;
+  font-size: 1rem;
+  color: #333;
+  box-shadow: 0 2px 8px 0 rgba(226, 108, 165, 0.06);
+  transition: background 0.2s, box-shadow 0.2s;
+  font-family: 'Signika', 'Poppins', 'Segoe UI', Arial, sans-serif;
+}
+
+form input:focus {
+  outline: none;
+  background: #fff0f7;
+  box-shadow: 0 4px 16px 0 rgba(226, 108, 165, 0.12);
+}
+
+form button {
+  width: 100%;
+  padding: 1rem 0;
+  background: linear-gradient(90deg, #a685e2 0%, #e26ca5 100%);
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 8px 0 rgba(166, 133, 226, 0.10);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  margin-top: 0.5rem;
+  font-family: 'Signika', 'Poppins', 'Segoe UI', Arial, sans-serif;
+}
+
+form button:hover {
+  background: linear-gradient(90deg, #e26ca5 0%, #a685e2 100%);
+  box-shadow: 0 4px 16px 0 rgba(226, 108, 165, 0.18);
+}
+
+.login-message {
+  margin-top: 1.2rem;
+  font-size: 1.1rem;
+  color: #e26ca5;
+  font-weight: 600;
+  text-align: center;
+}
+
+.login-switch {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: #a685e2;
+  font-size: 1rem;
+}
+
+.login-link {
+  color: #e26ca5;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.login-link:hover {
+  color: #a685e2;
+}
+
+@media (max-width: 600px) {
+  .login-header h1 {
+    font-size: 2rem;
+  }
+  .login-header {
+    margin-bottom: 1.2rem;
+  }
+  form {
+    padding: 1.5rem 0.5rem;
+    border-radius: 1.2rem;
+    max-width: 95vw;
+  }
+  form input,
+  form button {
+    font-size: 0.95rem;
+    padding: 0.8rem 0.8rem;
+    border-radius: 0.8rem;
+  }
+}
