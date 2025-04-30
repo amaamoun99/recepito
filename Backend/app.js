@@ -4,26 +4,31 @@ const bodyParser = require("body-parser");
 const authRoutes = require("./routes/authRoutes");
 const postRoutes = require("./routes/postRoutes");
 const commentRoutes = require("./routes/commentRoutes");
-const path = require("path"); // Import path module for consistency
+const path = require("path");
 
 const app = express();
 
-// Increase payload size limit
-app.use(bodyParser.json({ limit: "5mb" })); //middleware
+// Middleware for parsing JSON and URL-encoded data
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-app.use(bodyParser.urlencoded({ limit: "5mb", extended: true }));
+// Remove bodyParser as express.json() and express.urlencoded() are sufficient
+// app.use(bodyParser.json({ limit: "5mb" }));
+// app.use(bodyParser.urlencoded({ limit: "5mb", extended: true }));
 
 app.use(
   cors({
-    origin: "*", // frontend URL change to production URL
-    credentials: true, // Allow credentials (cookies) to be sent
+    origin: "*",
+    credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
 app.options("*", cors());
 
-// Serve static files (e.g., images) from a folder
+// Serve static files
+// Update the static file serving to include the uploads folder
+app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
 app.use("/img", express.static(path.join(__dirname, "public", "img")));
 
 app.use((req, res, next) => {
@@ -33,7 +38,7 @@ app.use((req, res, next) => {
 
 // Routes
 // app.use("/api/v1/properties", propertiesRouter);
-app.use("/api/v1/auth", authRoutes); 
+app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/posts/:postId/comments", commentRoutes);
 

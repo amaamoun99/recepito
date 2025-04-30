@@ -1,6 +1,7 @@
-const express = require('express');
-const postController = require('../controllers/postController');
-const authController = require('../controllers/authController');
+const express = require("express");
+const postController = require("../controllers/postController");
+const authController = require("../controllers/authController");
+const upload = require("../utils/multerConfig");
 
 const router = express.Router();
 
@@ -9,17 +10,21 @@ router.use(authController.protect);
 
 // Post routes
 router
-  .route('/')
+  .route("/")
   .get(postController.getAllPosts)
-  .post(postController.createPost);
+  .post(
+    upload.single("image"),
+    postController.resizeImage,
+    postController.createPost
+  );
 
 router
-  .route('/:id')
+  .route("/:id")
   .get(postController.getPost)
   .patch(postController.updatePost)
   .delete(postController.deletePost);
 
 // Like/Unlike route
-router.patch('/:id/like', postController.toggleLike);
+router.patch("/:id/like", postController.toggleLike);
 
-module.exports = router; 
+module.exports = router;
