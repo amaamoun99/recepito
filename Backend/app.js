@@ -1,7 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-// const propertiesRouter = require("./routes/propertiesRoute");
+const authRoutes = require("./routes/authRoutes");
+const postRoutes = require("./routes/postRoutes");
+const commentRoutes = require("./routes/commentRoutes");
 const path = require("path"); // Import path module for consistency
 
 const app = express();
@@ -31,5 +33,8 @@ app.use((req, res, next) => {
 
 // Routes
 // app.use("/api/v1/properties", propertiesRouter);
+app.use("/api/v1/auth", authRoutes); 
+app.use("/api/v1/posts", postRoutes);
+app.use("/api/v1/posts/:postId/comments", commentRoutes);
 
 module.exports = app;
