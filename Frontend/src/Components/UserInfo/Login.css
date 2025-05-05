@@ -141,6 +141,6 @@ form button:hover {
   form button {
     font-size: 0.95rem;
     padding: 0.8rem 0.8rem;
-    border-radius: 0.8rem;
-  }
+    border-radius:0.8rem;
+}
 }

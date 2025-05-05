@@ -8,22 +8,38 @@ import NewPost from './Components/NewPost/NewPost';
 
 function App() {
   const [users, setUsers] = useState([
-    { Username: "Mario", Email: "Mario@gmail.com", Password: "123",posts: [
-      { image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=400&h=120", recipe: "This is the recipe for image #1." },
-  ]},
-    { Username: "Mariam", Email: "Mario@gmail.com", Password: "123" ,posts: [
-      { image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=400&h=120", recipe: "This is the recipe for image #1." },
-     
-    ]}
+    {
+      Username: "Mario",
+      Email: "Mario@gmail.com",
+      Password: "123",
+      posts: [
+        {
+          image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=400&h=120",
+          recipe: "This is the recipe for image #1."
+        },
+      ]
+    },
+    {
+      Username: "Mariam",
+      Email: "Mario@gmail.com",
+      Password: "123",
+      posts: [
+        {
+          image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=400&h=120",
+          recipe: "This is the recipe for image #1."
+        }
+      ]
+    }
   ]);
+
   const [page, setPage] = useState("login");
   const [currentUser, setCurrentUser] = useState(null);
+  const [viewedUser, setViewedUser] = useState(null); // NEW: to support viewing another user's profile
 
   const adduser = (newu) => {
     setUsers([...users, newu]);
   };
 
-  
   const addPost = (post) => {
     setUsers(users => {
       const updatedUsers = users.map(u =>
@@ -37,7 +53,6 @@ function App() {
     });
     setPage("fyp");
   };
-
 
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
@@ -54,7 +69,17 @@ function App() {
     });
   };
 
-  
+  const goToUserProfile = (username) => {
+  console.log("Looking for user:", username);
+  const user = users.find(u => u.Username === username);
+  console.log("Found user:", user);
+  if (user) {
+    setViewedUser(user);
+    setPage("viewProfile");
+  } else {
+    console.log("User not found in:", users.map(u => u.Username));
+  }
+};
 
   return (
     <>
@@ -72,7 +97,7 @@ function App() {
         />
       )}
       {page === "profile" && currentUser && (
-        <Profilee user={currentUser} goToHome={() => setPage("fyp")} updateUser={updateUser}/>
+        <Profilee user={currentUser} goToHome={() => setPage("fyp")} updateUser={updateUser} />
       )}
       {page === "fyp" && currentUser && (
         <Fyp
@@ -80,13 +105,21 @@ function App() {
           goToProfile={() => setPage("profile")}
           goToPlus={() => setPage("newpost")}
           goToHome={() => setPage("fyp")}
+          goToUserProfile={goToUserProfile} // <-- NEW PROP
         />
       )}
-       {page === "newpost" && currentUser && (
+      {page === "newpost" && currentUser && (
         <NewPost
           user={currentUser}
           onAdd={addPost}
-          onCancel={() => setPage("newpost")}
+          onCancel={() => setPage("fyp")}
+        />
+      )}
+      {page === "viewProfile" && viewedUser && (
+        <Profilee
+          user={viewedUser}
+          goToHome={() => setPage("fyp")}
+          updateUser={() => {}} // you can disable editing others' profiles
         />
       )}
     </>

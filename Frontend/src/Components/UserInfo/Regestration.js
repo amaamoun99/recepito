@@ -16,19 +16,42 @@ const Regestration = ({ add, goToLogin }) => {
         Password: "",
     });
     const [avatar, setAvatar] = useState(imageOptions[0]);
+    const [errors, setErrors] = useState({});
 
     const inputhandler = (e) => {
         setForm({ ...form, [e.target.id]: e.target.value });
     };
 
+    const validate = () => {
+        const newErrors = {};
+
+        if (!form.Username.trim()) newErrors.Username = "Username is required.";
+        if (!form.Email.trim()) {
+            newErrors.Email = "Email is required.";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.Email)) {
+            newErrors.Email = "Invalid email format.";
+        }
+
+        if (!form.Password) {
+            newErrors.Password = "Password is required.";
+        } else if (form.Password.length < 6) {
+            newErrors.Password = "Password must be at least 6 characters.";
+        } else if (!/[A-Z]/.test(form.Password)) {
+            newErrors.Password = "Password must contain at least one uppercase letter.";
+        } else if (!/[0-9]/.test(form.Password)) {
+            newErrors.Password = "Password must contain at least one number.";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const saveinfo = (e) => {
         e.preventDefault();
-        if (!form.Username || !form.Email || !form.Password) {
-            alert("Please fill in all fields.");
-            return;
+        if (validate()) {
+            add({ ...form, avatar, posts: [] });
+            goToLogin();
         }
-        add({ ...form, avatar, posts: [] });
-        goToLogin(); // Redirect to login after registration
     };
 
     return (
@@ -37,7 +60,7 @@ const Regestration = ({ add, goToLogin }) => {
                 <h1>RECEPITO</h1>
                 <p className="registration-slogan">Cook. Share. Inspire</p>
             </header>
-            <form>
+            <form onSubmit={saveinfo} noValidate>
                 <input
                     id="Username"
                     type="text"
@@ -45,6 +68,8 @@ const Regestration = ({ add, goToLogin }) => {
                     value={form.Username}
                     onChange={inputhandler}
                 />
+                {errors.Username && <p className="error-text">{errors.Username}</p>}
+
                 <input
                     id="Email"
                     type="email"
@@ -52,6 +77,8 @@ const Regestration = ({ add, goToLogin }) => {
                     value={form.Email}
                     onChange={inputhandler}
                 />
+                {errors.Email && <p className="error-text">{errors.Email}</p>}
+
                 <input
                     id="Password"
                     type="password"
@@ -59,6 +86,8 @@ const Regestration = ({ add, goToLogin }) => {
                     value={form.Password}
                     onChange={inputhandler}
                 />
+                {errors.Password && <p className="error-text">{errors.Password}</p>}
+
                 <div className="avatar-label">Choose your avatar</div>
                 <div className="avatar-options">
                     {imageOptions.map((img, idx) => (
@@ -79,8 +108,10 @@ const Regestration = ({ add, goToLogin }) => {
                         />
                     ))}
                 </div>
-                <button className="profile-done" onClick={saveinfo}>Submit</button>
+
+                <button className="profile-done" type="submit">Submit</button>
             </form>
+
             <p className="login-switch">
                 Already have an account?{" "}
                 <span className="login-link" onClick={goToLogin}>Login</span>

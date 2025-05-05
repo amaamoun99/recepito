@@ -8,6 +8,11 @@ body, .registration-bg {
   margin: 0;
   padding: 0;
 }
+.error-text {
+  color: red;
+  font-size: 0.9em;
+  margin: 4px 0 8px 0;
+}
 
 .registration-bg {
   min-height: 100vh;
