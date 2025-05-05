@@ -1,17 +1,130 @@
 import React, { useState } from "react";
 import './Fyp.css';
-import Footer from '../Footer/Footer';
-import RecipeDetail from '../CardReciepe/RecipeDetail';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faComment, faShare, faUser, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { 
+  faHeart, 
+  faComment, 
+  faShare, 
+  faUser, 
+  faSearch, 
+  faTimes,
+  faHome,
+  faPlus,
+  faBell,
+  faBookmark,
+  faEllipsisH
+} from '@fortawesome/free-solid-svg-icons';
 
+
+// Sidebar Component
+const Sidebar = ({ onHome, onSearch, onCreate, onProfile }) => {
+  return (
+    <aside className="sidebar">
+      <nav className="sidebar-nav">
+        <button className="sidebar-item" onClick={onHome}>
+          <FontAwesomeIcon icon={faHome} />
+          <span>Home</span>
+        </button>
+        <button className="sidebar-item" onClick={onSearch}>
+          <FontAwesomeIcon icon={faSearch} />
+          <span>Search</span>
+        </button>
+        <button className="sidebar-item create-button" onClick={onCreate}>
+          <FontAwesomeIcon icon={faPlus} />
+          <span>Create Recipe</span>
+        </button>
+        <button className="sidebar-item" onClick={onProfile}>
+          <FontAwesomeIcon icon={faUser} />
+          <span>Profile</span>
+        </button>
+      </nav>
+    </aside>
+  );
+};
+
+// RecipePostCard Component
+const RecipePostCard = ({ post, user, onLike, onComment, onShare, onUserClick }) => {
+  return (
+    <div className="recipe-card">
+      <div className="card-header">
+        <div className="user-info" onClick={(e) => onUserClick(e, post.user)}>
+          <img src={post.img} alt={post.user} className="user-avatar" />
+          <div>
+            <div className="username">{post.user}</div>
+            <div className="location">{post.location}</div>
+          </div>
+        </div>
+        <button className="menu-button">
+          <FontAwesomeIcon icon={faEllipsisH} />
+        </button>
+      </div>
+      
+      <img src={post.img} alt="Recipe" className="recipe-image" />
+      
+      <div className="card-actions">
+        <div className="action-buttons">
+          <button 
+            className={`like-button ${post.likedBy.includes(user?.username) ? 'liked' : ''}`}
+            onClick={(e) => onLike(post.id, e)}
+          >
+            <FontAwesomeIcon icon={faHeart} />
+            <span>{post.likes}</span>
+          </button>
+          <button className="comment-button" onClick={() => onComment(post.id)}>
+            <FontAwesomeIcon icon={faComment} />
+            <span>{post.comments}</span>
+          </button>
+          <button className="share-button" onClick={() => onShare(post.id)}>
+            <FontAwesomeIcon icon={faShare} />
+            <span>{post.shares}</span>
+          </button>
+        </div>
+        <button className="bookmark-button">
+          <FontAwesomeIcon icon={faBookmark} />
+        </button>
+      </div>
+      
+      <div className="recipe-content">
+        <h3 className="recipe-title">{post.title || 'Delicious Recipe'}</h3>
+        <p className="recipe-description">{post.recipe}</p>
+        <div className="recipe-tags">
+          {post.tags?.map((tag, index) => (
+            <span key={index} className="tag">#{tag}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// BottomNavBar Component
+const BottomNavBar = ({ onHome, onSearch, onCreate, onProfile }) => {
+  return (
+    <nav className="bottom-navbar">
+      <button className="nav-item" onClick={onHome}>
+        <FontAwesomeIcon icon={faHome} />
+        <span>Home</span>
+      </button>
+      <button className="nav-item" onClick={onSearch}>
+        <FontAwesomeIcon icon={faSearch} />
+        <span>Search</span>
+      </button>
+      <button className="nav-item create-button" onClick={onCreate}>
+        <FontAwesomeIcon icon={faPlus} />
+        <span>Create</span>
+      </button>
+      <button className="nav-item" onClick={onProfile}>
+        <FontAwesomeIcon icon={faUser} />
+        <span>Profile</span>
+      </button>
+    </nav>
+  );
+};
+
+// Main FYP Component
 const Fyp = ({ user, goToProfile, goToHome, goToPlus, goToUserProfile }) => {
-  const [selected, setSelected] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const [likedByModal, setLikedByModal] = useState(null);
-
-  // Sample feed data with like functionality
+  const [selectedPost, setSelectedPost] = useState(null);
   const [feed, setFeed] = useState([
     {
       id: 1,
@@ -22,7 +135,8 @@ const Fyp = ({ user, goToProfile, goToHome, goToPlus, goToUserProfile }) => {
       likedBy: [],
       comments: 0,
       shares: 0,
-      recipe: "This is Mario's special pasta recipe with fresh tomatoes and basil. Enjoy!"
+      recipe: "This is Mario's special pasta recipe with fresh tomatoes and basil. Enjoy!",
+      tags: ["italian", "pasta", "vegetarian"]
     },
     {
       id: 2,
@@ -33,43 +147,13 @@ const Fyp = ({ user, goToProfile, goToHome, goToPlus, goToUserProfile }) => {
       likedBy: [],
       comments: 0,
       shares: 0,
-      recipe: "Mariam's delicious chocolate cake recipe goes here. Perfect for birthdays!"
-    },
-    {
-      id: 3,
-      user: "Alex Morgan",
-      location: "Boston, Massachusetts",
-      img: require('../../Images/1Girl.jpg'),
-      likes: 0,
-      likedBy: [],
-      comments: 0,
-      shares: 0,
-      recipe: "Healthy quinoa salad with avocado and lemon dressing."
+      recipe: "Mariam's delicious chocolate cake recipe goes here. Perfect for birthdays!",
+      tags: ["dessert", "chocolate", "baking"]
     }
   ]);
 
   const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-    setIsSearching(query.length > 0);
-  };
-
-  const clearSearch = () => {
-    setSearchQuery("");
-    setIsSearching(false);
-  };
-
-  const filteredPosts = feed.filter(post => 
-    post.recipe.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleUserClick = (e, username) => {
-    e.stopPropagation();
-    if (username === user?.username) {
-      goToProfile();
-    } else {
-      goToUserProfile(username);
-    }
+    setSearchQuery(e.target.value);
   };
 
   const handleLike = (postId, e) => {
@@ -91,160 +175,51 @@ const Fyp = ({ user, goToProfile, goToHome, goToPlus, goToUserProfile }) => {
     });
   };
 
-  const showLikedBy = (post, e) => {
+  const handleUserClick = (e, username) => {
     e.stopPropagation();
-    setLikedByModal(post);
-  };
-
-  const closeLikedByModal = () => {
-    setLikedByModal(null);
+    if (username === user?.username) {
+      goToProfile();
+    } else {
+      goToUserProfile(username);
+    }
   };
 
   return (
-    <div id="root">
-      <div className="fyp-bg">
-        {/* Top Bar with Search */}
-        <div className="fyp-topbar">
-          <div className="fyp-search-container">
-            <FontAwesomeIcon icon={faSearch} className="fyp-search-icon" />
-            <input 
-              className="fyp-search" 
-              placeholder="Search recipes..." 
-              value={searchQuery}
-              onChange={handleSearch}
-            />
-            {searchQuery && (
-              <FontAwesomeIcon 
-                icon={faTimes} 
-                className="fyp-clear-icon"
-                onClick={clearSearch}
-              />
-            )}
-          </div>
-          <FontAwesomeIcon 
-            icon={faUser} 
-            className="fyp-user-icon" 
-            onClick={() => goToProfile()} 
-            style={{ cursor: "pointer" }}
-          />
-        </div>
-
-        {/* Feed */}
-        <div className="fyp-feed">
-          {isSearching ? (
-            <div className="search-results-container">
-              <h3 className="search-results-title">Search Results for "{searchQuery}"</h3>
-              {filteredPosts.length > 0 ? (
-                filteredPosts.map((post, idx) => (
-                  <div
-                    className="fyp-card search-result-card"
-                    key={`search-${idx}`}
-                    onClick={() => setSelected(post)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="search-result-content">
-                      <img src={post.img} alt={post.user} className="search-result-avatar" />
-                      <div className="search-result-text">
-                        <div className="search-result-user">{post.user}</div>
-                        <div className="search-result-recipe">
-                          {post.recipe.split(new RegExp(`(${searchQuery})`, 'gi')).map((part, i) => (
-                            part.toLowerCase() === searchQuery.toLowerCase() ? (
-                              <span key={i} className="highlight">{part}</span>
-                            ) : (
-                              <span key={i}>{part}</span>
-                            )
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="no-results">No recipes found matching "{searchQuery}"</div>
-              )}
-            </div>
-          ) : (
-            feed.map((post, idx) => (
-              <div
-                className="fyp-card"
-                key={idx}
-                onClick={() => setSelected(post)}
-                style={{ cursor: "pointer" }}
-              >
-                <div
-                  className="fyp-card-header"
-                  onClick={(e) => handleUserClick(e, post.user)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <img src={post.img} alt={post.user} className="fyp-card-avatar" />
-                  <div>
-                    <div className="fyp-card-user">{post.user}</div>
-                    <div className="fyp-card-location">{post.location}</div>
-                  </div>
-                  <div className="fyp-card-menu">⋮</div>
-                </div>
-
-                <img src={post.img} alt="post" className="fyp-card-img" />
-                <div className="fyp-card-actions">
-                  <div 
-                    onClick={(e) => post.likes > 0 ? showLikedBy(post, e) : handleLike(post.id, e)}
-                    className={post.likedBy.includes(user?.username) ? "liked" : ""}
-                  >
-                    <FontAwesomeIcon 
-                      icon={faHeart} 
-                      className={post.likedBy.includes(user?.username) ? "liked-icon" : ""} 
-                    />
-                    <span>{post.likes}</span>
-                  </div>
-                  <div><FontAwesomeIcon icon={faComment} /> <span>{post.comments}</span></div>
-                  <div><FontAwesomeIcon icon={faShare} /> <span>{post.shares}</span></div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Recipe Detail Modal */}
-        {selected && (
-          <RecipeDetail
-            image={selected.img}
-            username={selected.user}
-            recipe={selected.recipe}
-            onClose={() => setSelected(null)}
-          />
-        )}
-
-        {/* Liked By Modal */}
-        {likedByModal && (
-          <div className="liked-by-modal">
-            <div className="liked-by-content">
-              <div className="liked-by-header">
-                <h3>Liked by</h3>
-                <button onClick={closeLikedByModal} className="close-modal">×</button>
-              </div>
-              <div className="liked-by-list">
-                {likedByModal.likedBy.length > 0 ? (
-                  likedByModal.likedBy.map((username, index) => (
-                    <div key={index} className="liked-by-user">
-                      <FontAwesomeIcon icon={faUser} className="user-icon" />
-                      <span>{username}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="no-likes">No likes yet</div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Bottom Navigation */}
-        <Footer 
-          onHome={goToHome} 
-          onPlus={goToPlus} 
-          onProfile={() => goToProfile()} 
+    <div className="fyp-container">
+      <div className="main-content">
+        <Sidebar 
+          onHome={goToHome}
+          onSearch={() => {}}
+          onCreate={goToPlus}
+          onProfile={goToProfile}
         />
+        
+        <main className="feed">
+          {feed.map(post => (
+            <RecipePostCard
+              key={post.id}
+              post={post}
+              user={user}
+              onLike={handleLike}
+              onComment={() => setSelectedPost(post)}
+              onShare={() => {}}
+              onUserClick={handleUserClick}
+            />
+          ))}
+        </main>
+        
+        <aside className="suggestions">
+          <h3>Suggested Users</h3>
+          {/* Add suggested users component here */}
+        </aside>
       </div>
+      
+      <BottomNavBar 
+        onHome={goToHome}
+        onSearch={() => {}}
+        onCreate={goToPlus}
+        onProfile={goToProfile}
+      />
     </div>
   );
 };

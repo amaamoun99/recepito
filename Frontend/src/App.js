@@ -1,5 +1,7 @@
 import './App.css';
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './Components/Layout/Layout';
 import Login from './Components/UserInfo/Login';
 import Regestration from './Components/UserInfo/Regestration';
 import Profilee from './Components/ProfilePage/Profilee';
@@ -32,9 +34,9 @@ function App() {
     }
   ]);
 
-  const [page, setPage] = useState("login");
   const [currentUser, setCurrentUser] = useState(null);
-  const [viewedUser, setViewedUser] = useState(null); // NEW: to support viewing another user's profile
+  const [viewedUser, setViewedUser] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const adduser = (newu) => {
     setUsers([...users, newu]);
@@ -51,12 +53,10 @@ function App() {
       setCurrentUser(updatedCurrentUser);
       return updatedUsers;
     });
-    setPage("fyp");
   };
 
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
-    setPage("fyp");
   };
 
   const updateUser = (updatedUser) => {
@@ -70,59 +70,70 @@ function App() {
   };
 
   const goToUserProfile = (username) => {
-  console.log("Looking for user:", username);
-  const user = users.find(u => u.Username === username);
-  console.log("Found user:", user);
-  if (user) {
-    setViewedUser(user);
-    setPage("viewProfile");
-  } else {
-    console.log("User not found in:", users.map(u => u.Username));
-  }
-};
+    const user = users.find(u => u.Username === username);
+    if (user) {
+      setViewedUser(user);
+    }
+  };
+
+  // Navbar handlers
+  const handleProfileClick = () => {
+    // Navigate to profile page
+    window.location.pathname = '/profile';
+  };
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
   return (
-    <>
-      {page === "login" && (
-        <Login
-          users={users}
-          goToRegister={() => setPage("register")}
-          onLoginSuccess={handleLoginSuccess}
-        />
-      )}
-      {page === "register" && (
-        <Regestration
-          add={adduser}
-          goToLogin={() => setPage("login")}
-        />
-      )}
-      {page === "profile" && currentUser && (
-        <Profilee user={currentUser} goToHome={() => setPage("fyp")} updateUser={updateUser} />
-      )}
-      {page === "fyp" && currentUser && (
-        <Fyp
-          user={currentUser}
-          goToProfile={() => setPage("profile")}
-          goToPlus={() => setPage("newpost")}
-          goToHome={() => setPage("fyp")}
-          goToUserProfile={goToUserProfile} // <-- NEW PROP
-        />
-      )}
-      {page === "newpost" && currentUser && (
-        <NewPost
-          user={currentUser}
-          onAdd={addPost}
-          onCancel={() => setPage("fyp")}
-        />
-      )}
-      {page === "viewProfile" && viewedUser && (
-        <Profilee
-          user={viewedUser}
-          goToHome={() => setPage("fyp")}
-          updateUser={() => {}} // you can disable editing others' profiles
-        />
-      )}
-    </>
+    <Router>
+      <Layout
+        user={currentUser}
+        onProfileClick={handleProfileClick}
+        onSearch={handleSearch}
+        searchQuery={searchQuery}
+      >
+        <Routes>
+          <Route path="/" element={
+            <Fyp
+              user={currentUser}
+              goToProfile={handleProfileClick}
+              goToPlus={() => window.location.pathname = '/newpost'}
+              goToHome={() => window.location.pathname = '/'}
+              goToUserProfile={goToUserProfile}
+            />
+          } />
+          <Route path="/login" element={
+            <Login
+              users={users}
+              goToRegister={() => window.location.pathname = '/register'}
+              onLoginSuccess={handleLoginSuccess}
+            />
+          } />
+          <Route path="/register" element={
+            <Regestration
+              add={adduser}
+              goToLogin={() => window.location.pathname = '/login'}
+            />
+          } />
+          <Route path="/profile" element={
+            <Profilee
+                  user={currentUser}
+                  goToHome={() => window.location.pathname = '/'}
+                  updateUser={updateUser}
+                />
+              
+          } />
+          <Route path="/newpost" element={
+            <NewPost
+              user={currentUser}
+              onAdd={addPost}
+              onCancel={() => window.location.pathname = '/'}
+            />
+          } />
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
 
