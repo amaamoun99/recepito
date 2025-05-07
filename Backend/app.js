@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const authRoutes = require("./routes/authRoutes");
 const postRoutes = require("./routes/postRoutes");
 const commentRoutes = require("./routes/commentRoutes");
+const userRoutes = require("./routes/userRoutes");
 const path = require("path");
 
 const app = express();
@@ -18,7 +19,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 app.use(
   cors({
-    origin: "*",
+    origin: "http://localhost:8080",
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -41,5 +42,6 @@ app.use((req, res, next) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/posts/:postId/comments", commentRoutes);
+app.use("/api/v1/users", userRoutes);
 
 module.exports = app;

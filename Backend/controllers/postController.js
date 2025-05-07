@@ -1,5 +1,6 @@
 const sharp = require("sharp");
 const Post = require("../models/postsModel");
+const User = require("../models/userModel");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 
@@ -8,6 +9,9 @@ exports.resizeImage = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
   req.file.filename = `post-${req.user.id}-${Date.now()}.jpeg`;
+  
+  // Set the full path for the image URL
+  req.file.path = `/uploads/posts/${req.file.filename}`;
 
   await sharp(req.file.buffer)
     .resize(1080, 1080)
@@ -20,21 +24,50 @@ exports.resizeImage = catchAsync(async (req, res, next) => {
 
 // Create a new post
 exports.createPost = catchAsync(async (req, res, next) => {
-  if (!req.file && !req.body.image) {
-    return next(new AppError("Please provide an image for the post", 400));
+  // Validate required fields
+  const requiredFields = ['title', 'description', 'cuisine', 'difficulty', 'servings', 'cookingTime'];
+  const missingFields = requiredFields.filter(field => !req.body[field]);
+  
+  if (missingFields.length > 0) {
+    return next(new AppError(`Missing required fields: ${missingFields.join(', ')}`, 400));
   }
 
+  // Validate difficulty level
+  const validDifficulties = ['Easy', 'Medium', 'Hard'];
+  if (!validDifficulties.includes(req.body.difficulty)) {
+    return next(new AppError(`Invalid difficulty level. Must be one of: ${validDifficulties.join(', ')}`, 400));
+  }
+
+  // Transform instructions array to match schema
+  const instructions = req.body.instructions.map(step => ({ step }));
+
+  // Transform ingredients array to match schema
+  const ingredients = req.body.ingredients.map(ingredient => ({
+    name: ingredient.name,
+    quantity: ingredient.quantity
+  }));
+
+  // Create the new post
   const newPost = await Post.create({
+    ...req.body,
     author: req.user.id,
-    caption: req.body.caption,
-    image: req.file ? req.file.filename : req.body.image,
+    imageUrl: req.file ? req.file.path : req.body.imageUrl || '',
+    instructions,
+    ingredients
   });
 
+  // Add the recipe to the user's collection
+  const user = await User.findById(req.user.id);
+  if (user) {
+    user.recipes.push(newPost._id);
+    await user.save({ validateBeforeSave: false });
+  }
+
   res.status(201).json({
-    status: "success",
+    status: 'success',
     data: {
-      post: newPost,
-    },
+      post: newPost
+    }
   });
 });
 
@@ -149,10 +182,116 @@ exports.toggleLike = catchAsync(async (req, res, next) => {
 
   await post.save();
 
+  // After toggling, check if the user's ID is now in the likes array
+  const isNowLiked = post.likes.includes(req.user.id);
+  
   res.status(200).json({
     status: "success",
     data: {
       post,
+      isLiked: isNowLiked, // Return whether the post is now liked by the user
+      likesCount: post.likes.length
     },
   });
 });
+
+// Check if user has liked posts
+exports.checkUserLikes = catchAsync(async (req, res, next) => {
+  // Get post IDs from query (comma-separated)
+  const postIds = req.query.posts ? req.query.posts.split(',') : [];
+  
+  if (postIds.length === 0) {
+    return res.status(200).json({
+      status: "success",
+      data: {
+        likes: {}
+      }
+    });
+  }
+  
+  // Find all posts with the given IDs
+  const posts = await Post.find({ _id: { $in: postIds } });
+  
+  // Create a map of post ID to like status
+  const likeStatusMap = {};
+  
+  posts.forEach(post => {
+    // Convert user ID to string for consistent comparison
+    const userId = req.user.id.toString();
+    
+    // Check if user has liked this post (comparing as strings)
+    const isLiked = post.likes.some(id => id.toString() === userId);
+    
+    likeStatusMap[post._id] = {
+      isLiked,
+      likesCount: post.likes.length
+    };
+  });
+  
+  res.status(200).json({
+    status: "success",
+    data: {
+      likes: likeStatusMap
+    }
+  });
+});
+
+
+// Add recipe to user
+exports.addRecipeToUser = catchAsync(async (req, res, next) => {
+  const { recipeId } = req.params;
+  const user = await User.findById(req.user.id);
+  const recipe = await Post.findById(recipeId);
+
+  if (!user) {
+      return next(new AppError('No user found with that ID', 404));
+  }
+
+  if (!recipe) {
+      return next(new AppError('No recipe found with that ID', 404));
+  }
+
+  // Check if recipe is already in user's recipes
+  if (user.recipes.includes(recipeId)) {
+      return next(new AppError('Recipe is already in your collection', 400));
+  }
+
+  // Add recipe to user's recipes
+  user.recipes.push(recipeId);
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+      status: 'success',
+      data: {
+          user
+      }
+  });
+});
+
+// Remove recipe from user
+exports.removeRecipeFromUser = catchAsync(async (req, res, next) => {
+  const { recipeId } = req.params;
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+      return next(new AppError('No user found with that ID', 404));
+  }
+
+  // Check if recipe exists in user's recipes
+  const recipeIndex = user.recipes.indexOf(recipeId);
+  if (recipeIndex === -1) {
+      return next(new AppError('Recipe not found in your collection', 404));
+  }
+
+  // Remove recipe from user's recipes
+  user.recipes = user.recipes.filter(id => id.toString() !== recipeId.toString());
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+      status: 'success',
+      data: {
+          user
+      }
+  });
+});
+

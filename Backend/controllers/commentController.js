@@ -14,7 +14,7 @@ exports.createComment = catchAsync(async (req, res, next) => {
   const newComment = await Comment.create({
     post: req.params.postId,
     author: req.user.id,
-    text: req.body.text
+    content: req.body.content
   });
 
   // Add comment to post's comments array
