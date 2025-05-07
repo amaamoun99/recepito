@@ -156,7 +156,7 @@ const RecipeCard = ({ recipe, likeInfo, onLikeUpdate }) => {
         <div className="p-4">
           <div className="flex items-center gap-3 mb-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={author.profilePicture || '/default-avatar.png'} alt={author.username} />
+              <AvatarImage src={`http://localhost:2059${author.profilePicture}` || '/default-avatar.png'} alt={author.username} />
               <AvatarFallback>{(author.username[0] || '?').toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="text-sm">

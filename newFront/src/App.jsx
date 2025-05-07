@@ -106,14 +106,14 @@ const AppRoutes = () => (
         </PrivateRoute>
       }
     />
-    <Route
+    {/* <Route
       path="/saved"
       element={
         <PrivateRoute>
           <SavedRecipes />
         </PrivateRoute>
       }
-    />
+    /> */}
     <Route
       path="/explore"
       element={

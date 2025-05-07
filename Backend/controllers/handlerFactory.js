@@ -27,7 +27,7 @@ exports.deleteOne = Model =>
       req.body.sizes = JSON.parse(req.body.sizes); // Parse sizes if it exists
     }
   
-    if (req.file) req.body.coverPhoto = req.file.filename;
+    if (req.file) req.body.profilePicture = req.file.filename;
     
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,

@@ -1,3 +1,4 @@
+const sharp = require('sharp');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
@@ -16,6 +17,24 @@ exports.getMe = (req, res, next) => {
     next();
 };
 
+// Middleware to resize profile image
+exports.resizeProfileImage = catchAsync(async (req, res, next) => {
+    if (!req.file) return next();
+
+    req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+    
+    // Set the full path for the image URL
+    req.file.path = `/img/users/${req.file.filename}`;
+
+    await sharp(req.file.buffer)
+        .resize(500, 500)
+        .toFormat("jpeg")
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/users/${req.file.filename}`);
+
+    next();
+});
+
 // Update current user's profile
 exports.updateMe = catchAsync(async (req, res, next) => {
     // 1) Create error if user POSTs password data
@@ -28,15 +47,23 @@ exports.updateMe = catchAsync(async (req, res, next) => {
         );
     }
 
-    // 2) Update user document
+    // 2) Filter out unwanted fields that are not allowed to be updated
+    const filteredBody = {
+        username: req.body.username,
+        email: req.body.email,
+        bio: req.body.bio,
+        location: req.body.location
+    };
+    
+    // 3) If there is a file upload, add the filename to the update
+    if (req.file) {
+        filteredBody.profilePicture = req.file.path;
+    }
+
+    // 4) Update user document
     const updatedUser = await User.findByIdAndUpdate(
         req.user.id,
-        {
-            name: req.body.name,
-            email: req.body.email,
-            bio: req.body.bio,
-            location: req.body.location
-        },
+        filteredBody,
         {
             new: true,
             runValidators: true

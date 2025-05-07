@@ -33,12 +33,12 @@ const Sidebar = () => {
             Profile
           </Link>
         </Button>
-        <Button variant="ghost" className="w-full justify-start text-gray-700 dark:text-gray-200 hover:shadow-lg hover:shadow-recipe-primary/30 transition-all duration-200" asChild>
+        {/* <Button variant="ghost" className="w-full justify-start text-gray-700 dark:text-gray-200 hover:shadow-lg hover:shadow-recipe-primary/30 transition-all duration-200" asChild>
           <Link to="/saved">
             <Bookmark className="mr-3 h-5 w-5" />
             Saved Recipes
           </Link>
-        </Button>
+        </Button> */}
        
       </nav>
       <div className="pt-4 border-t border-gray-200 dark:border-gray-800">

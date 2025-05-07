@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const upload = require('../utils/multerConfig');
 const { protect } = require('../controllers/authController');
+const userController = require('../controllers/userController');
+
+// Destructure controller functions for easier use
 const { 
     getAllUsers, 
     getUser, 
@@ -14,8 +18,9 @@ const {
     getUserComments,
     followUser,
     addRecipeToUser,
-    removeRecipeFromUser
-} = require('../controllers/userController');
+    removeRecipeFromUser,
+    resizeProfileImage
+} = userController;
 
 // Public routes
 router.post('/', createUser);
@@ -25,10 +30,22 @@ router.get('/', getAllUsers);
 router.use(protect);
 
 // Routes that require authentication
+// Make sure the uploads directory exists
+const fs = require('fs');
+const path = require('path');
+const userImagesPath = path.join('public', 'img', 'users');
+if (!fs.existsSync(userImagesPath)) {
+    fs.mkdirSync(userImagesPath, { recursive: true });
+}
+
 router
     .route('/me')
     .get(getMe, getUser)
-    .patch(updateMe)
+    .patch(
+        upload.single('profilePicture'),
+        resizeProfileImage,
+        updateMe
+    )
     .delete(deleteMe);
 
 router

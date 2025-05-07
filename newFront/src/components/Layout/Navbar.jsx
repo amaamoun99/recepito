@@ -184,7 +184,7 @@ const Navbar = () => {
                     <Button variant="ghost" className="p-1">
                       <Avatar>
                         <AvatarImage 
-                          src={user?.avatar || 'https://i.pravatar.cc/150'} 
+                          src={`http://localhost:2059${user?.profilePicture}` || 'https://i.pravatar.cc/150'} 
                           alt={user?.username || 'User'} 
                         />
                         <AvatarFallback>{user?.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>

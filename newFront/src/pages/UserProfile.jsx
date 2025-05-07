@@ -135,7 +135,7 @@ const UserProfile = () => {
         <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-sm mb-8">
           <div className="flex flex-col md:flex-row md:items-center">
             <Avatar className="h-24 w-24 md:h-32 md:w-32">
-              <AvatarImage src={profile?.profilePicture || '/default-avatar.png'} alt={profile?.username} />
+              <AvatarImage src={`http://localhost:2059${profile?.profilePicture}` || '/default-avatar.png'} alt={profile?.username} />
               <AvatarFallback>{profile?.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
             
@@ -163,14 +163,6 @@ const UserProfile = () => {
               )}
               
               <div className="flex gap-4 mt-4">
-                <div className="flex items-center">
-                  <span className="font-medium mr-1 dark:text-white">{profile?.followers?.length || 0}</span>
-                  <span className="text-gray-500 dark:text-gray-400">Followers</span>
-                </div>
-                <div>
-                  <span className="font-medium mr-1 dark:text-white">{profile?.following?.length || 0}</span>
-                  <span className="text-gray-500 dark:text-gray-400">Following</span>
-                </div>
                 <div>
                   <span className="font-medium mr-1 dark:text-white">{profile?.recipes?.length || 0}</span>
                   <span className="text-gray-500 dark:text-gray-400">Recipes</span>

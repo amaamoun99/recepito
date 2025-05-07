@@ -160,17 +160,42 @@ export const AuthProvider = ({ children }) => {
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
+  // Refresh user data after profile updates
+  const refreshUserData = async () => {
+    if (!token) return;
+    
+    try {
+      const response = await axios.get(
+        `${API_URL}/auth/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.data.status === "success" && response.data.data?.user) {
+        setUser(response.data.data.user);
+      }
+      return response.data.data?.user;
+    } catch (err) {
+      console.error("Failed to refresh user data:", err);
+      return null;
+    }
+  };
+
   // Context value
   const value = {
     user,
     token,
-    isAuthenticated: !!user,
     isLoading,
+    isAuthenticated: !!token,
     error,
     login,
-    register,
     logout,
-    getAuthHeader
+    register,
+    getAuthHeader,
+    refreshUserData
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -249,12 +249,15 @@ const Home = () => {
                             servings: post.servings,
                             difficulty: post.difficulty,
                             cuisine: post.cuisine,
+                            profilePicture: post.author.profilePicture,
+
                             author: {
                               id: post.author._id,
                               username: post.author.username,
                               profilePicture: post.author.profilePicture,
                             },
                             imageUrl: post.imageUrl || `/uploads/posts/${post._id}.jpeg`,
+                            comments: post.comments,
                             likes: post.likes,
                             createdAt: post.createdAt,
                           }}

@@ -1,14 +1,16 @@
 // Recipe type is now just used as a JSX prop type, no need to import it
-import { Avatar, AvatarFallback, AvatarImage } from  "@/components/ui/avatar";
-import { Button } from  "@/components/ui/button";
-import { Badge } from  "@/components/ui/badge";
-import { Heart, Bookmark, Share2, Clock, Users } from  "lucide-react";
-import { useState } from  "react";
-import { formatDistanceToNow } from  "date-fns";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/components/ui/use-toast";
+import { Heart, Bookmark, Share2, Clock, Users } from "lucide-react";
+import { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
 
 
 
 const RecipeDetailHeader = ({ recipe }) => {
+  const { toast } = useToast();
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(recipe?.likes || 0);
   const [saved, setSaved] = useState(false);
@@ -42,9 +44,6 @@ const RecipeDetailHeader = ({ recipe }) => {
             </p>
           </div>
         </div>
-        <Button variant="outline" size="sm">
-          Follow
-        </Button>
       </div>
 
       {/* Recipe image */}
@@ -74,17 +73,9 @@ const RecipeDetailHeader = ({ recipe }) => {
         </div>
 
         <div className="flex gap-2">
-          <Button 
-            variant="outline"
-            size="sm"
-            className={liked ? "text-recipe-primary border-recipe-primary" : ""}
-            onClick={handleLike}
-          >
-            <Heart className={liked ? "fill-current" : ""} />
-            {likes}
-          </Button>
+         
           
-          <Button 
+          {/* <Button 
             variant="outline"
             size="sm"
             className={saved ? "text-recipe-primary border-recipe-primary" : ""}
@@ -92,10 +83,20 @@ const RecipeDetailHeader = ({ recipe }) => {
           >
             <Bookmark className={saved ? "fill-current" : ""} />
             Save
-          </Button>
+          </Button> */}
           
-          <Button variant="outline" size="sm">
-            <Share2 />
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href);
+              toast({
+                title: "Link copied!",
+                description: "Recipe link has been copied to clipboard",
+              });
+            }}
+          >
+            <Share2 className="mr-1" />
             Share
           </Button>
         </div>
