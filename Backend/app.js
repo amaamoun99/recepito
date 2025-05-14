@@ -17,13 +17,8 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // app.use(bodyParser.json({ limit: "5mb" }));
 // app.use(bodyParser.urlencoded({ limit: "5mb", extended: true }));
 
-app.use(
-  cors({
-    origin: "http://localhost:8080",
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+// Enable CORS for all requests
+app.use(cors());
 
 app.options("*", cors());
 

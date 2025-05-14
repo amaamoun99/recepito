@@ -208,3 +208,16 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // 3) Log the user in, send JWT
   createSendToken(user, 200, res);
 });
+
+// Restrict to certain roles middleware
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        status: 'fail',
+        message: 'You do not have permission to perform this action'
+      });
+    }
+    next();
+  };
+};

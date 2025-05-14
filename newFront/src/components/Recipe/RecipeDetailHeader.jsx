@@ -49,7 +49,7 @@ const RecipeDetailHeader = ({ recipe }) => {
       {/* Recipe image */}
       <div className="aspect-video overflow-hidden rounded-lg">
         <img 
-          src={`http://localhost:2059${recipe?.imageUrl}` || "/placeholder-food.jpg"} 
+          src={`${import.meta.env.VITE_BASE_URL}${recipe?.imageUrl}` || "/placeholder-food.jpg"} 
           alt={recipe?.title || "Recipe"} 
           className="w-full h-full object-cover" 
         />

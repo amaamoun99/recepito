@@ -68,7 +68,7 @@ const Navbar = () => {
       }
 
       // Get all posts from the backend
-      fetch('http://localhost:2059/api/v1/posts')
+      fetch(`${import.meta.env.VITE_API_URL}/posts`)
         .then(response => response.json())
         .then(data => {
           const allRecipes = data.data.posts;
@@ -184,7 +184,7 @@ const Navbar = () => {
                     <Button variant="ghost" className="p-1">
                       <Avatar>
                         <AvatarImage 
-                          src={`http://localhost:2059${user?.profilePicture}` || 'https://i.pravatar.cc/150'} 
+                          src={`${import.meta.env.VITE_BASE_URL}${user?.profilePicture}` || 'https://i.pravatar.cc/150'} 
                           alt={user?.username || 'User'} 
                         />
                         <AvatarFallback>{user?.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>

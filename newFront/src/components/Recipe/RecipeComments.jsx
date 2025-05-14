@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
 
-const API_URL = "http://localhost:2059/api/v1";
+const API_URL = `${import.meta.env.VITE_API_URL}`;
 
 const RecipeComments = ({ recipeId }) => {
   const [comment, setComment] = useState("");

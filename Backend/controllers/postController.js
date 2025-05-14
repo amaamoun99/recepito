@@ -122,8 +122,8 @@ exports.updatePost = catchAsync(async (req, res, next) => {
     return next(new AppError("No post found with that ID", 404));
   }
 
-  // Check if user is the author of the post
-  if (post.author.toString() !== req.user.id) {
+  // Allow admin to update any post
+  if (req.user.role !== 'admin' && post.author.toString() !== req.user.id) {
     return next(new AppError("You can only update your own posts", 403));
   }
 
@@ -149,8 +149,8 @@ exports.deletePost = catchAsync(async (req, res, next) => {
     return next(new AppError("No post found with that ID", 404));
   }
 
-  // Check if user is the author of the post
-  if (post.author.toString() !== req.user.id) {
+  // Allow admin to delete any post
+  if (req.user.role !== 'admin' && post.author.toString() !== req.user.id) {
     return next(new AppError("You can only delete your own posts", 403));
   }
 
@@ -292,6 +292,61 @@ exports.removeRecipeFromUser = catchAsync(async (req, res, next) => {
       data: {
           user
       }
+  });
+});
+
+// Admin: Get analytics (number of users and posts)
+exports.getAnalytics = catchAsync(async (req, res, next) => {
+  const User = require("../models/userModel");
+  const Post = require("../models/postsModel");
+  const userCount = await User.countDocuments();
+  const postCount = await Post.countDocuments();
+  res.status(200).json({
+    status: "success",
+    data: { userCount, postCount },
+  });
+});
+
+// Admin: Get all posts (no pagination, all posts)
+exports.adminGetAllPosts = catchAsync(async (req, res, next) => {
+  const posts = await Post.find()
+    .populate("author", "username profilePicture")
+    .populate("comments")
+    .sort("-createdAt");
+  res.status(200).json({
+    status: "success",
+    results: posts.length,
+    data: { posts },
+  });
+});
+
+// Admin: Update any post
+exports.adminUpdatePost = catchAsync(async (req, res, next) => {
+  const post = await Post.findById(req.params.id);
+  if (!post) {
+    return next(new AppError("No post found with that ID", 404));
+  }
+  const updatedPost = await Post.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    { new: true, runValidators: true }
+  );
+  res.status(200).json({
+    status: "success",
+    data: { post: updatedPost },
+  });
+});
+
+// Admin: Delete any post
+exports.adminDeletePost = catchAsync(async (req, res, next) => {
+  const post = await Post.findById(req.params.id);
+  if (!post) {
+    return next(new AppError("No post found with that ID", 404));
+  }
+  await Post.findByIdAndDelete(req.params.id);
+  res.status(204).json({
+    status: "success",
+    data: null,
   });
 });
 

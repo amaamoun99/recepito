@@ -11,7 +11,7 @@ import ProfileRecipeCard from "@/components/Recipe/ProfileRecipeCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-const API_URL = "http://localhost:2059/api/v1";
+const API_URL = `${import.meta.env.VITE_API_URL}`;
 
 const UserProfile = () => {
   const { id } = useParams();
@@ -135,7 +135,7 @@ const UserProfile = () => {
         <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-sm mb-8">
           <div className="flex flex-col md:flex-row md:items-center">
             <Avatar className="h-24 w-24 md:h-32 md:w-32">
-              <AvatarImage src={`http://localhost:2059${profile?.profilePicture}` || '/default-avatar.png'} alt={profile?.username} />
+              <AvatarImage src={`${import.meta.env.VITE_BASE_URL}${profile?.profilePicture}` || '/default-avatar.png'} alt={profile?.username} />
               <AvatarFallback>{profile?.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
             

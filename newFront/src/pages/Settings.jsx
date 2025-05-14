@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import axios from "axios";
 
-const API_URL = "http://localhost:2059/api/v1";
+const API_URL = `${import.meta.env.VITE_API_URL}`;
 
 const Settings = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -57,7 +57,7 @@ const Settings = () => {
       if (user.profilePicture) {
         setPreviewUrl(user.profilePicture.startsWith('http') 
           ? user.profilePicture 
-          : `http://localhost:2059${user.profilePicture.startsWith('/') ? '' : '/'}${user.profilePicture}`);
+          : `${import.meta.env.VITE_BASE_URL}${user.profilePicture.startsWith('/') ? '' : '/'}${user.profilePicture}`);
       }
     }
   }, [user]);

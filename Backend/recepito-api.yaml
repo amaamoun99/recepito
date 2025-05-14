@@ -1,0 +1,514 @@
+openapi: 3.0.0
+info:
+  title: Recepito Social Food API
+  version: 1.0.0
+  description: API documentation for Recepito, a social media food/recipe sharing app (Express.js, Prisma, Postgres)
+servers:
+  - url: http://localhost:3000/api/v1
+
+tags:
+  - name: Auth
+    description: User authentication and password management
+  - name: Users
+    description: User profile, following, and management
+  - name: Recipes
+    description: Recipe sharing, liking, and management
+  - name: Comments
+    description: Commenting on recipes
+
+paths:
+  /auth/signup:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      description: Create a new user account for the food social app.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username: { type: string }
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+                profilePicture: { type: string, description: "URL or base64" }
+      responses:
+        '201':
+          description: User created and logged in
+        '400':
+          description: Validation error
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email and password
+      description: Authenticate a user and return a JWT token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        '200':
+          description: Login successful, returns JWT token
+        '401':
+          description: Invalid credentials
+
+  /auth/logout:
+    get:
+      tags: [Auth]
+      summary: Logout user (clears JWT cookie)
+      description: Logout the current user by clearing the JWT cookie.
+      responses:
+        '200':
+          description: Logout successful
+
+  /auth/forgotPassword:
+    post:
+      tags: [Auth]
+      summary: Request password reset email
+      description: Send a password reset email to the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200':
+          description: Reset token sent to email
+
+  /auth/resetPassword/{token}:
+    patch:
+      tags: [Auth]
+      summary: Reset password using token
+      description: Reset a user's password using a valid reset token.
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password: { type: string, format: password }
+      responses:
+        '200':
+          description: Password reset successful
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current logged-in user
+      description: Get the profile of the currently authenticated user.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Returns current user
+
+  /auth/updatePassword:
+    patch:
+      tags: [Auth]
+      summary: Update password for logged-in user
+      description: Update the password for the currently authenticated user.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword: { type: string }
+                newPassword: { type: string }
+      responses:
+        '200':
+          description: Password updated
+
+  /users:
+    get:
+      tags: [Users]
+      summary: Get all users
+      description: Retrieve a list of all users on the platform.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: List of users
+    post:
+      tags: [Users]
+      summary: Create a new user (admin only)
+      description: Create a new user (admin access required).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username: { type: string }
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '201':
+          description: User created
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current user's profile
+      description: Get the profile of the currently authenticated user.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: User profile
+    patch:
+      tags: [Users]
+      summary: Update current user's profile (with optional profile picture)
+      description: Update the profile of the currently authenticated user. Supports profile picture upload.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                username: { type: string }
+                email: { type: string }
+                bio: { type: string }
+                location: { type: string }
+                profilePicture: { type: string, format: binary }
+      responses:
+        '200':
+          description: User updated
+    delete:
+      tags: [Users]
+      summary: Deactivate current user's account
+      description: Deactivate the currently authenticated user's account.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204':
+          description: User deactivated
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      description: Retrieve a user's profile by their ID.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: User found
+    patch:
+      tags: [Users]
+      summary: Update user by ID (admin only)
+      description: Update a user's profile by their ID (admin access required).
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: { type: string }
+                email: { type: string }
+                bio: { type: string }
+                location: { type: string }
+      responses:
+        '200':
+          description: User updated
+    delete:
+      tags: [Users]
+      summary: Delete user by ID (admin only)
+      description: Delete a user by their ID (admin access required).
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: User deleted
+
+  /users/{id}/recipes:
+    get:
+      tags: [Users]
+      summary: Get all recipes by user
+      description: Retrieve all recipes posted by a specific user.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of recipes
+
+  /users/{id}/comments:
+    get:
+      tags: [Users]
+      summary: Get all comments by user
+      description: Retrieve all comments made by a specific user.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of comments
+
+  /users/{id}/follow:
+    patch:
+      tags: [Users]
+      summary: Follow or unfollow a user
+      description: Follow or unfollow a user by their ID.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Follow/unfollow successful
+
+  /recipes:
+    get:
+      tags: [Recipes]
+      summary: Get all recipes (paginated)
+      description: Retrieve a paginated list of all recipes shared on the platform.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+      responses:
+        '200':
+          description: List of recipes
+    post:
+      tags: [Recipes]
+      summary: Create a new recipe (with image upload)
+      description: Share a new recipe with the community. Supports image upload, ingredients, and instructions.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, description, cuisine, difficulty, servings, cookingTime, instructions, ingredients]
+              properties:
+                title: { type: string }
+                description: { type: string }
+                cuisine: { type: string }
+                difficulty: { type: string, enum: [Easy, Medium, Hard] }
+                servings: { type: integer }
+                cookingTime: { type: integer }
+                instructions: 
+                  type: array
+                  items: { type: string }
+                ingredients:
+                  type: array
+                  items: 
+                    type: object
+                    properties:
+                      name: { type: string }
+                      quantity: { type: string }
+                image: { type: string, format: binary }
+      responses:
+        '201':
+          description: Recipe created
+
+  /recipes/{id}:
+    get:
+      tags: [Recipes]
+      summary: Get recipe by ID
+      description: Retrieve a specific recipe by its ID.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Recipe found
+    patch:
+      tags: [Recipes]
+      summary: Update recipe by ID (author only)
+      description: Update a recipe you have posted.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                caption: { type: string }
+      responses:
+        '200':
+          description: Recipe updated
+    delete:
+      tags: [Recipes]
+      summary: Delete recipe by ID (author only)
+      description: Delete a recipe you have posted.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Recipe deleted
+
+  /recipes/{id}/like:
+    patch:
+      tags: [Recipes]
+      summary: Like or unlike a recipe
+      description: Like or unlike a recipe by its ID.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Like/unlike successful
+
+  /recipes/check-likes:
+    get:
+      tags: [Recipes]
+      summary: Check if user has liked specific recipes
+      description: Check if the current user has liked specific recipes (by IDs).
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: recipeIds
+          schema: { type: string, description: "Comma-separated recipe IDs" }
+      responses:
+        '200':
+          description: Like status for recipes
+
+  /recipes/{recipeId}/comments:
+    get:
+      tags: [Comments]
+      summary: Get all comments for a recipe
+      description: Retrieve all comments for a specific recipe.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of comments
+    post:
+      tags: [Comments]
+      summary: Add a comment to a recipe
+      description: Add a comment to a specific recipe.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: { type: string }
+      responses:
+        '201':
+          description: Comment created
+
+  /recipes/comments/{id}:
+    patch:
+      tags: [Comments]
+      summary: Update a comment (author only)
+      description: Update a comment you have made on a recipe.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string }
+      responses:
+        '200':
+          description: Comment updated
+    delete:
+      tags: [Comments]
+      summary: Delete a comment (author only)
+      description: Delete a comment you have made on a recipe.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Comment deleted
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 

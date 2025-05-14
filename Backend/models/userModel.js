@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   profilePicture: { type: String },
   bio: { type: String },
   location: { type: String },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   recipes: [{

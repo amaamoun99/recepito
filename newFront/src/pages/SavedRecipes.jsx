@@ -9,7 +9,7 @@ import { Search, FilterX } from  "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from  "@/components/ui/select";
 import axios from "axios";
 
-const API_URL = "http://localhost:2059/api/v1";
+const API_URL = `${import.meta.env.VITE_API_URL}`;
 
 const SavedRecipes = () => {
   const { user, isAuthenticated, getAuthHeader } = useAuth();

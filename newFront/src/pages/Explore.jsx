@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
-const API_URL = "http://localhost:2059/api/v1";
+const API_URL = `${import.meta.env.VITE_API_URL}`;
 
 const Explore = () => {
   const { getAuthHeader } = useAuth();
@@ -130,7 +130,7 @@ const Explore = () => {
                     <div className="flex items-center space-x-4">
                       <Avatar className="h-12 w-12">
                         <AvatarImage 
-                          src={user?.profilePicture ? (user.profilePicture.startsWith('http') ? user.profilePicture : `http://localhost:2059${user.profilePicture}`) : null} 
+                          src={user?.profilePicture ? (user.profilePicture.startsWith('http') ? user.profilePicture : `${import.meta.env.VITE_BASE_URL}${user.profilePicture}`) : null} 
                           alt={user?.username || 'User'} 
                         />
                         <AvatarFallback>{(user?.username || 'U').slice(0, 2).toUpperCase()}</AvatarFallback>

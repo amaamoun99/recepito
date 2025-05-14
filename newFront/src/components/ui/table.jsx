@@ -1,28 +1,25 @@
-import * as React from "react"
+import React from "react"
 
 import { cn } from "@/lib/utils"
 
-const Table = React.forwardRef(({ className, ...props }, ref) => (
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props}
-    />
-  
+export const Table = React.forwardRef(({ className, children, ...props }, ref) => (
+  <table ref={ref} className={className} {...props}>
+    {children}
+  </table>
 ))
 Table.displayName = "Table"
 
-const TableHeader = React.forwardRef(({ className, ...props }, ref) => (
-  
+export const TableHeader = React.forwardRef(({ className, children, ...props }, ref) => (
+  <thead ref={ref} className={className} {...props}>
+    {children}
+  </thead>
 ))
 TableHeader.displayName = "TableHeader"
 
-const TableBody = React.forwardRef(({ className, ...props }, ref) => (
-  <tbody
-    ref={ref}
-    className={cn("[&_tr-child]:border-0", className)}
-    {...props}
-  />
+export const TableBody = React.forwardRef(({ className, children, ...props }, ref) => (
+  <tbody ref={ref} className={className} {...props}>
+    {children}
+  </tbody>
 ))
 TableBody.displayName = "TableBody"
 
@@ -38,36 +35,24 @@ const TableFooter = React.forwardRef(({ className, ...props }, ref) => (
 ))
 TableFooter.displayName = "TableFooter"
 
-const TableRow = React.forwardRef(({ className, ...props }, ref) => (
-  <tr
-    ref={ref}
-    className={cn(
-      "border-b transition-colors hover-muted/50 data-[state=selected]:bg-muted",
-      className
-    )}
-    {...props}
-  />
+export const TableRow = React.forwardRef(({ className, children, ...props }, ref) => (
+  <tr ref={ref} className={className} {...props}>
+    {children}
+  </tr>
 ))
 TableRow.displayName = "TableRow"
 
-const TableHead = React.forwardRef(({ className, ...props }, ref) => (
-  <th
-    ref={ref}
-    className={cn(
-      "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
-      className
-    )}
-    {...props}
-  />
+export const TableHead = React.forwardRef(({ className, children, ...props }, ref) => (
+  <th ref={ref} className={className} {...props}>
+    {children}
+  </th>
 ))
 TableHead.displayName = "TableHead"
 
-const TableCell = React.forwardRef(({ className, ...props }, ref) => (
-  <td
-    ref={ref}
-    className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
-    {...props}
-  />
+export const TableCell = React.forwardRef(({ className, children, ...props }, ref) => (
+  <td ref={ref} className={className} {...props}>
+    {children}
+  </td>
 ))
 TableCell.displayName = "TableCell"
 
@@ -79,14 +64,3 @@ const TableCaption = React.forwardRef(({ className, ...props }, ref) => (
   />
 ))
 TableCaption.displayName = "TableCaption"
-
-export {
-  Table,
-  TableHeader,
-  TableBody,
-  TableFooter,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableCaption,
-}

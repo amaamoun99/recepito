@@ -9,7 +9,25 @@ const router = express.Router();
 // Protect all routes after this middleware
 router.use(authController.protect);
 
-// Post routes
+// Admin-only analytics route
+router.get(
+  "/admin/analytics",
+  authController.restrictTo("admin"),
+  postController.getAnalytics
+);
+
+// Admin-only: get all posts, delete any post, update any post
+router.get(
+  "/admin/posts",
+  authController.restrictTo("admin"),
+  postController.adminGetAllPosts
+);
+router
+  .route("/admin/posts/:id")
+  .patch(authController.restrictTo("admin"), postController.adminUpdatePost)
+  .delete(authController.restrictTo("admin"), postController.adminDeletePost);
+
+// Post routes (user-level)
 router
   .route("/")
   .get(postController.getAllPosts)

@@ -19,7 +19,7 @@ const ProfileRecipeCard = ({ recipe }) => {
       <div className="relative">
         <Link to={`/recipe/${recipe.id}`}>
           <img
-            src={`http://localhost:2059${recipe.imageUrl}` || "/placeholder-food.jpg"}
+            src={`${import.meta.env.VITE_BASE_URL}${recipe.imageUrl}` || "/placeholder-food.jpg"}
             alt={recipe.title}
             className="w-full h-48 object-cover"
           />

@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import './likeAnimation.css';
 
-const API_BASE_URL = 'http://localhost:2059/api/v1';
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
 
 const RecipeCard = ({ recipe, likeInfo, onLikeUpdate }) => {
   // Initialize like state from likeInfo if available, otherwise calculate from recipe
@@ -134,7 +134,7 @@ const RecipeCard = ({ recipe, likeInfo, onLikeUpdate }) => {
       <div className="recipe-card group rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300">
         <div className="relative h-60 overflow-hidden">
           <img
-            src={imageUrl.startsWith('http') ? imageUrl : `http://localhost:2059${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`}
+            src={imageUrl.startsWith('http') ? imageUrl : `${import.meta.env.VITE_BASE_URL}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`}
             alt={title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={(e) => {
@@ -156,7 +156,7 @@ const RecipeCard = ({ recipe, likeInfo, onLikeUpdate }) => {
         <div className="p-4">
           <div className="flex items-center gap-3 mb-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={`http://localhost:2059${author.profilePicture}` || '/default-avatar.png'} alt={author.username} />
+              <AvatarImage src={`${import.meta.env.VITE_BASE_URL}${author.profilePicture}` || '/default-avatar.png'} alt={author.username} />
               <AvatarFallback>{(author.username[0] || '?').toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="text-sm">

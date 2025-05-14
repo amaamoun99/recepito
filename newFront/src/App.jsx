@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import SearchResults from "./pages/SearchResults";
 import Explore from "./pages/Explore";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -103,6 +104,14 @@ const AppRoutes = () => (
       element={
         <PrivateRoute>
           <SearchResults />
+        </PrivateRoute>
+      }
+    />
+    <Route
+      path="/admin"
+      element={
+        <PrivateRoute>
+          <AdminDashboard />
         </PrivateRoute>
       }
     />
