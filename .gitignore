@@ -126,6 +126,9 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+*.docx
+*.pdf
+
 # Ignore all node_modules folders
 node_modules/
 
