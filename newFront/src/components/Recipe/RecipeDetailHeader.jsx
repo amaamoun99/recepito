@@ -7,8 +7,6 @@ import { Heart, Bookmark, Share2, Clock, Users } from "lucide-react";
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 
-
-
 const RecipeDetailHeader = ({ recipe }) => {
   const { toast } = useToast();
   const [liked, setLiked] = useState(false);
@@ -28,19 +26,27 @@ const RecipeDetailHeader = ({ recipe }) => {
     <div className="space-y-6">
       {/* Recipe title and author info */}
       <h1 className="text-3xl font-bold">{recipe?.title || "Recipe"}</h1>
-      
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Avatar>
-            <AvatarImage src={recipe?.author?.profilePicture || '/default-avatar.png'} />
+            <AvatarImage
+              src={recipe?.author?.profilePicture || "/default-avatar.png"}
+            />
             <AvatarFallback>
-              {(recipe?.author?.username || 'U')[0].toUpperCase()}
+              {(recipe?.author?.username || "U")[0].toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-medium">{recipe?.author?.username || "Unknown Author"}</p>
+            <p className="font-medium">
+              {recipe?.author?.username || "Unknown Author"}
+            </p>
             <p className="text-sm text-muted-foreground">
-              {recipe?.createdAt ? formatDistanceToNow(new Date(recipe.createdAt), { addSuffix: true }) : "Just now"}
+              {recipe?.createdAt
+                ? formatDistanceToNow(new Date(recipe.createdAt), {
+                    addSuffix: true,
+                  })
+                : "Just now"}
             </p>
           </div>
         </div>
@@ -48,10 +54,13 @@ const RecipeDetailHeader = ({ recipe }) => {
 
       {/* Recipe image */}
       <div className="aspect-video overflow-hidden rounded-lg">
-        <img 
-          src={`${import.meta.env.VITE_BASE_URL}${recipe?.imageUrl}` || "/placeholder-food.jpg"} 
-          alt={recipe?.title || "Recipe"} 
-          className="w-full h-full object-cover" 
+        <img
+          src={
+            `${import.meta.env.VITE_BASE_URL}${recipe?.imageUrl}` ||
+            "/placeholder-food.jpg"
+          }
+          alt={recipe?.title || "Recipe"}
+          className="w-full h-full object-cover"
         />
       </div>
 
@@ -64,7 +73,7 @@ const RecipeDetailHeader = ({ recipe }) => {
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            Cook: {recipe.cookTime} min
+            Cook: {recipe.cookingTime} min
           </div>
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4" />
@@ -73,8 +82,6 @@ const RecipeDetailHeader = ({ recipe }) => {
         </div>
 
         <div className="flex gap-2">
-         
-          
           {/* <Button 
             variant="outline"
             size="sm"
@@ -84,9 +91,9 @@ const RecipeDetailHeader = ({ recipe }) => {
             <Bookmark className={saved ? "fill-current" : ""} />
             Save
           </Button> */}
-          
-          <Button 
-            variant="outline" 
+
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => {
               navigator.clipboard.writeText(window.location.href);
@@ -112,7 +119,9 @@ const RecipeDetailHeader = ({ recipe }) => {
       </div>
 
       {/* Recipe description */}
-      <p className="text-muted-foreground">{recipe?.description || "No description available"}</p>
+      <p className="text-muted-foreground">
+        {recipe?.description || "No description available"}
+      </p>
     </div>
   );
 };

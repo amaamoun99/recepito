@@ -13,12 +13,14 @@ const app = express();
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Remove bodyParser as express.json() and express.urlencoded() are sufficient
-// app.use(bodyParser.json({ limit: "5mb" }));
-// app.use(bodyParser.urlencoded({ limit: "5mb", extended: true }));
-
 // Enable CORS for all requests
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:8080",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  })
+);
 
 app.options("*", cors());
 
@@ -34,6 +36,7 @@ app.use((req, res, next) => {
 
 // Routes
 // app.use("/api/v1/properties", propertiesRouter);
+
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/posts/:postId/comments", commentRoutes);
