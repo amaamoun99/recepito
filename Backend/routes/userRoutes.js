@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const upload = require('../utils/multerConfig');
-const { protect } = require('../controllers/authController');
 const userController = require('../controllers/userController');
+const { protect } = require('../controllers/authController'); // Import protect middleware
 
-// Destructure controller functions for easier use
-const { 
-    getAllUsers, 
-    getUser, 
-    createUser, 
-    updateUser, 
+// Destructure controller functions
+const {
+    getAllUsers,
+    getUser,
+    createUser,
+    updateUser,
     deleteUser,
     getMe,
     updateMe,
@@ -22,48 +22,40 @@ const {
     resizeProfileImage
 } = userController;
 
-// Public routes
-router.post('/', createUser);
-router.get('/', getAllUsers);
-
-// Protected routes
-router.use(protect);
-
-// Routes that require authentication
-// Make sure the uploads directory exists
+// Make sure uploads directory exists
 const fs = require('fs');
 const path = require('path');
 const userImagesPath = path.join('public', 'img', 'users');
+
 if (!fs.existsSync(userImagesPath)) {
     fs.mkdirSync(userImagesPath, { recursive: true });
 }
 
-router
-    .route('/me')
-    .get(getMe, getUser)
-    .patch(
-        upload.single('profilePicture'),
-        resizeProfileImage,
-        updateMe
-    )
-    .delete(deleteMe);
+// PUBLIC ROUTES (no authentication needed)
+router.post('/', createUser);      // create account
+router.get('/', getAllUsers);      // list all users
 
-router
-    .route('/:id')
-    .get(getUser)
-    .patch(updateUser)
-    .delete(deleteUser);
+// Public view routes - anyone can view profiles and recipes
+router.get('/:id', getUser);
+router.get('/:id/recipes', getUserRecipes);
+router.get('/:id/comments', getUserComments);
 
-router
-    .route('/:id/recipes')
-    .get(getUserRecipes);
 
-router
-    .route('/:id/comments')
-    .get(getUserComments);
+// Current user profile management
+router.get('/me', protect, getMe, getUser);
+router.patch('/me',
+    protect,
+    upload.single('profilePicture'),
+    resizeProfileImage,
+    updateMe
+);
+router.delete('/me', protect, deleteMe);
 
-router
-    .route('/:id/follow')
-    .patch(followUser);
+// User operations that require authentication
+router.patch('/:id', protect, updateUser);
+router.delete('/:id', protect, deleteUser);
+
+// Follow/unfollow - REQUIRES AUTHENTICATION
+router.patch('/:id/follow', protect, followUser);
 
 module.exports = router;

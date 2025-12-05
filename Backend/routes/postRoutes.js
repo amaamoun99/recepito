@@ -1,73 +1,51 @@
 const express = require("express");
 const postController = require("../controllers/postController");
-const authController = require("../controllers/authController");
 const commentController = require("../controllers/commentController");
 const upload = require("../utils/multerConfig");
+const { protect } = require("../controllers/authController"); // Import protect middleware
 
 const router = express.Router();
 
-// Protect all routes after this middleware
-router.use(authController.protect);
+// Public routes (no authentication needed)
+router.get("/", postController.getAllPosts);
 
-// Admin-only analytics route
-router.get(
-  "/admin/analytics",
-  authController.restrictTo("admin"),
-  postController.getAnalytics
+// Protected routes (authentication required)
+router.post(
+  "/",
+  protect, // Add authentication
+  upload.single("image"),
+  postController.resizeImage,
+  postController.createPost
 );
 
-// Admin-only: get all posts, delete any post, update any post
-router.get(
-  "/admin/posts",
-  authController.restrictTo("admin"),
-  postController.adminGetAllPosts
-);
-router
-  .route("/admin/posts/:id")
-  .patch(authController.restrictTo("admin"), postController.adminUpdatePost)
-  .delete(authController.restrictTo("admin"), postController.adminDeletePost);
+// IMPORTANT: Put specific routes BEFORE /:id route
+router.get("/check-likes", protect, postController.checkUserLikes);
 
-// Post routes (user-level)
-router
-  .route("/")
-  .get(postController.getAllPosts)
-  .post(
-    upload.single("image"),
-    postController.resizeImage,
-    postController.createPost
-  );
-
+// Generic /:id routes
 router
   .route("/:id")
   .get(postController.getPost)
-  .patch(postController.updatePost)
-  .delete(postController.deletePost, postController.removeRecipeFromUser);
+  .patch(protect, postController.updatePost)
+  .delete(protect, postController.deletePost);
 
 // Like/Unlike route
-router.patch("/:id/like", postController.toggleLike);
+router.patch("/:id/like", protect, postController.toggleLike);
 
-// Check user likes for multiple posts
-router.get("/check-likes", postController.checkUserLikes);
-
-// Comment routes
+// Comment routes (protected)
 router
   .route("/:postId/comments")
   .get(commentController.getPostComments)
-  .post(commentController.createComment);
+  .post(protect, commentController.createComment);
 
 router
   .route("/comments/:id")
-  .patch(commentController.updateComment)
-  .delete(commentController.deleteComment);
+  .patch(protect, commentController.updateComment)
+  .delete(protect, commentController.deleteComment);
 
-// Get current user's data
-router.get('/me', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    data: {
-      user: req.user
-    }
-  });
-});
+// Save/Unsave recipe
+router.patch("/:id/save", protect, postController.saveRecipe);
+
+// Rate and review recipe
+router.post("/:id/rate", protect, postController.rateRecipe);
 
 module.exports = router;

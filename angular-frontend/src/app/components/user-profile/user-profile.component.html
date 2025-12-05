@@ -1,0 +1,152 @@
+<div class="container mx-auto py-8">
+  <div *ngIf="isLoading" class="flex items-center justify-center min-h-[80vh]">
+    <div class="flex flex-col items-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <p class="mt-4 text-gray-500">Loading profile...</p>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="container mx-auto py-8">
+    <div class="text-center p-8 bg-red-50 rounded-lg shadow-sm">
+      <h2 class="text-xl font-semibold mb-4">Error Loading Profile</h2>
+      <p class="text-gray-600">{{ error }}</p>
+      <button 
+        class="mt-6 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+        (click)="browseRecipes()"
+      >
+        Go Back
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="profile && !isLoading && !error" class="max-w-5xl mx-auto">
+    <!-- Profile header -->
+    <div class="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-sm mb-8">
+      <div class="flex flex-col md:flex-row md:items-center">
+        <div class="h-24 w-24 md:h-32 md:w-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+          <img *ngIf="profile?.profilePicture" 
+               [src]="'http://localhost:3000' + profile.profilePicture" 
+               [alt]="profile?.username"
+               class="w-full h-full object-cover" />
+          <span *ngIf="!profile?.profilePicture" class="text-gray-600 font-semibold text-2xl">
+            {{ profile?.username?.[0]?.toUpperCase() || 'U' }}
+          </span>
+        </div>
+        
+        <div class="mt-4 md:mt-0 md:ml-8 flex-1">
+          <div class="flex flex-col md:flex-row md:items-center justify-between">
+            <h1 class="text-2xl font-bold">{{ profile?.username }}</h1>
+            
+            <div class="flex gap-2 mt-4 md:mt-0">
+              <button 
+                *ngIf="!isCurrentUser && currentUser"
+                (click)="toggleFollow()"
+                [class.bg-blue-500]="isFollowing"
+                [class.text-white]="isFollowing"
+                [class.bg-gray-200]="!isFollowing"
+                class="px-4 py-2 rounded-md hover:bg-gray-300"
+              >
+                {{ isFollowing ? 'Following' : 'Follow' }}
+              </button>
+            </div>
+          </div>
+          
+          <p *ngIf="profile?.bio" class="text-gray-600 dark:text-gray-300 mt-2">{{ profile?.bio }}</p>
+          
+          <p *ngIf="profile?.location" class="mt-2 text-gray-600 dark:text-gray-300">
+            📍 {{ profile?.location }}
+          </p>
+          
+          <div class="flex gap-6 mt-4">
+            <div>
+              <span class="font-medium">{{ profile?.recipes?.length || 0 }}</span>
+              <span class="text-gray-500 ml-1">Recipes</span>
+            </div>
+            <div>
+              <span class="font-medium">{{ followersCount }}</span>
+              <span class="text-gray-500 ml-1">Followers</span>
+            </div>
+            <div>
+              <span class="font-medium">{{ followingCount }}</span>
+              <span class="text-gray-500 ml-1">Following</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tabs-list grid w-full md:w-[400px] grid-cols-2 mb-6">
+        <button 
+          class="tab-trigger"
+          [class.active]="activeTab === 'recipes'"
+          (click)="setActiveTab('recipes')"
+        >
+          Recipes
+        </button>
+        <button 
+          *ngIf="isCurrentUser"
+          class="tab-trigger"
+          [class.active]="activeTab === 'saved'"
+          (click)="setActiveTab('saved')"
+        >
+          Saved
+        </button>
+      </div>
+      
+      <div *ngIf="activeTab === 'recipes'" class="mt-6">
+        <div *ngIf="profile?.recipes && (profile?.recipes?.length ?? 0) > 0" 
+             class="grid gap-8 grid-cols-1 md:grid-cols-2">
+          <div
+            *ngFor="let recipe of profile.recipes"
+            class="bg-white rounded-lg shadow p-4 cursor-pointer"
+            (click)="router.navigate(['/recipe', recipe._id])"
+          >
+            <img *ngIf="recipe.imageUrl" [src]="recipe.imageUrl" [alt]="recipe.title" class="w-full h-48 object-cover rounded mb-2" />
+            <h3 class="font-bold text-lg">{{ recipe.title }}</h3>
+            <p class="text-gray-600 text-sm">{{ recipe.description }}</p>
+          </div>
+        </div>
+        <div *ngIf="!profile?.recipes || profile?.recipes?.length === 0" 
+             class="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <p class="text-gray-600 dark:text-gray-300">
+            {{ isCurrentUser ? "You haven't created any recipes yet." : "This user hasn't created any recipes yet." }}
+          </p>
+          <button 
+            *ngIf="isCurrentUser"
+            (click)="createRecipe()"
+            class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+          >
+            Create Your First Recipe
+          </button>
+        </div>
+      </div>
+      
+      <div *ngIf="activeTab === 'saved' && isCurrentUser" class="mt-6">
+        <div *ngIf="profile?.savedRecipes && (profile?.savedRecipes?.length ?? 0) > 0" 
+             class="grid gap-8 grid-cols-1 md:grid-cols-2">
+          <div
+            *ngFor="let recipe of profile.savedRecipes"
+            class="bg-white rounded-lg shadow p-4 cursor-pointer"
+            (click)="router.navigate(['/recipe', recipe._id])"
+          >
+            <img *ngIf="recipe.imageUrl" [src]="recipe.imageUrl" [alt]="recipe.title" class="w-full h-48 object-cover rounded mb-2" />
+            <h3 class="font-bold text-lg">{{ recipe.title }}</h3>
+            <p class="text-gray-600 text-sm">{{ recipe.description }}</p>
+          </div>
+        </div>
+        <div *ngIf="!profile?.savedRecipes || profile?.savedRecipes?.length === 0" 
+             class="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <p class="text-gray-600 dark:text-gray-300">You haven't saved any recipes yet.</p>
+          <button 
+            (click)="browseRecipes()"
+            class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+          >
+            Browse Recipes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

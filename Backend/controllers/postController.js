@@ -350,3 +350,79 @@ exports.adminDeletePost = catchAsync(async (req, res, next) => {
   });
 });
 
+// Save/Unsave a recipe
+exports.saveRecipe = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const user = await User.findById(req.user.id);
+  const recipe = await Post.findById(id);
+
+  if (!recipe) {
+    return next(new AppError("No recipe found with that ID", 404));
+  }
+
+  const isSaved = user.savedRecipes.some(saved => saved.toString() === id);
+  
+  if (isSaved) {
+    // Unsave
+    user.savedRecipes = user.savedRecipes.filter(saved => saved.toString() !== id);
+  } else {
+    // Save
+    user.savedRecipes.push(id);
+  }
+
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      isSaved: !isSaved,
+      savedRecipes: user.savedRecipes
+    }
+  });
+});
+
+// Rate and review a recipe
+exports.rateRecipe = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const { rating, review } = req.body;
+  const post = await Post.findById(id);
+
+  if (!post) {
+    return next(new AppError("No recipe found with that ID", 404));
+  }
+
+  if (!rating || rating < 1 || rating > 5) {
+    return next(new AppError("Rating must be between 1 and 5", 400));
+  }
+
+  // Check if user has already rated
+  const existingRatingIndex = post.ratings.findIndex(
+    r => r.user.toString() === req.user.id.toString()
+  );
+
+  if (existingRatingIndex !== -1) {
+    // Update existing rating
+    post.ratings[existingRatingIndex].rating = rating;
+    post.ratings[existingRatingIndex].review = review || "";
+    post.ratings[existingRatingIndex].createdAt = Date.now();
+  } else {
+    // Add new rating
+    post.ratings.push({
+      user: req.user.id,
+      rating,
+      review: review || "",
+      createdAt: Date.now()
+    });
+  }
+
+  await post.save();
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      post,
+      averageRating: post.averageRating
+    }
+  });
+});
+

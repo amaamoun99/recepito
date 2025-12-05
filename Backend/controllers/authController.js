@@ -45,21 +45,19 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 
-// Protect routes middleware
+// FIXED: Protect routes middleware (proper authentication)
 exports.protect = catchAsync(async (req, res, next) => {
-  // 1) Get token and check if it exists
+  // 1) Get token from cookie or authorization header
   let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-  } else if (req.cookies.jwt) {
+  
+  if (req.cookies.jwt) {
     token = req.cookies.jwt;
+  } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
   }
 
   if (!token) {
-    return next(new AppError("You are not logged in", 401));
+    return next(new AppError('You are not logged in. Please log in to access this resource.', 401));
   }
 
   // 2) Verify token
@@ -68,15 +66,15 @@ exports.protect = catchAsync(async (req, res, next) => {
   // 3) Check if user still exists
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
-    return next(new AppError("User no longer exists", 401));
+    return next(new AppError('The user belonging to this token no longer exists.', 401));
   }
 
-  // 4) Check if user changed password after token was issued
-  if (currentUser.changedPasswordAfter(decoded.iat)) {
-    return next(new AppError("User recently changed password. Please log in again", 401));
+  // 4) Check if user changed password after the token was issued
+  if (currentUser.changedPasswordAfter && currentUser.changedPasswordAfter(decoded.iat)) {
+    return next(new AppError('User recently changed password. Please log in again.', 401));
   }
 
-  // Grant access to protected route
+  // GRANT ACCESS TO PROTECTED ROUTE
   req.user = currentUser;
   next();
 });
@@ -209,14 +207,12 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
-// Restrict to certain roles middleware
+// FIXED: Restrict to certain roles middleware
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
-      return res.status(403).json({
-        status: 'fail',
-        message: 'You do not have permission to perform this action'
-      });
+    // Check if user's role is in the allowed roles
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError('You do not have permission to perform this action', 403));
     }
     next();
   };

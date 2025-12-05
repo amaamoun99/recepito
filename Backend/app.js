@@ -5,6 +5,7 @@ const authRoutes = require("./routes/authRoutes");
 const postRoutes = require("./routes/postRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 const userRoutes = require("./routes/userRoutes");
+const mealPlanRoutes = require("./routes/mealPlanRoutes");
 const path = require("path");
 
 const app = express();
@@ -13,19 +14,22 @@ const app = express();
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Enable CORS for all requests
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+// FIXED: Enable credentials for cookies to work with CORS
 app.use(
   cors({
-    origin: "http://localhost:8080",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
+    origin: "http://localhost:4200", // Your Angular app URL
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    credentials: true, // CHANGED: Enable cookies/credentials
   })
 );
 
 app.options("*", cors());
 
 // Serve static files
-// Update the static file serving to include the uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
 app.use("/img", express.static(path.join(__dirname, "public", "img")));
 
@@ -34,12 +38,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
-// app.use("/api/v1/properties", propertiesRouter);
-
+// Routes (authentication-free versions)
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/posts/:postId/comments", commentRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/meal-plans", mealPlanRoutes);
 
 module.exports = app;

@@ -1,0 +1,243 @@
+<div class="max-w-3xl mx-auto">
+  <h1 class="text-3xl font-bold mb-6">Create Recipe</h1>
+  
+  <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()" class="space-y-8">
+    <!-- Title -->
+    <div>
+      <label for="title" class="block mb-2">Recipe Title</label>
+      <input
+        id="title"
+        type="text"
+        formControlName="title"
+        placeholder="E.g., Homemade Cookies"
+        class="w-full px-4 py-2 border rounded-md"
+      />
+      <div *ngIf="recipeForm.get('title')?.invalid && recipeForm.get('title')?.touched" 
+           class="text-red-500 text-sm mt-1">
+        Title is required
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label for="description" class="block mb-2">Description</label>
+      <textarea
+        id="description"
+        formControlName="description"
+        placeholder="Describe your recipe..."
+        class="w-full px-4 py-2 border rounded-md"
+        rows="4"
+      ></textarea>
+      <div *ngIf="recipeForm.get('description')?.invalid && recipeForm.get('description')?.touched" 
+           class="text-red-500 text-sm mt-1">
+        Description is required
+      </div>
+    </div>
+
+    <!-- Cuisine & Difficulty -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="cuisine" class="block mb-2">Cuisine</label>
+        <select
+          id="cuisine"
+          formControlName="cuisine"
+          class="w-full px-4 py-2 border rounded-md"
+        >
+          <option value="" disabled selected>Select cuisine</option>
+          <option *ngFor="let cuisine of cuisineOptions" [value]="cuisine">
+            {{ cuisine }}
+          </option>
+        </select>
+        <div *ngIf="recipeForm.get('cuisine')?.invalid && recipeForm.get('cuisine')?.touched" 
+             class="text-red-500 text-sm mt-1">
+          Cuisine is required
+        </div>
+      </div>
+      <div>
+        <label for="difficulty" class="block mb-2">Difficulty</label>
+        <select
+          id="difficulty"
+          formControlName="difficulty"
+          class="w-full px-4 py-2 border rounded-md"
+        >
+          <option value="" disabled selected>Select difficulty</option>
+          <option *ngFor="let diff of difficultyOptions" [value]="diff">
+            {{ diff }}
+          </option>
+        </select>
+        <div *ngIf="recipeForm.get('difficulty')?.invalid && recipeForm.get('difficulty')?.touched" 
+             class="text-red-500 text-sm mt-1">
+          Difficulty is required
+        </div>
+      </div>
+    </div>
+
+    <!-- Prep/Cook/Servings -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label for="prepTime" class="block mb-2">Prep Time (mins)</label>
+        <input
+          id="prepTime"
+          type="number"
+          formControlName="prepTime"
+          min="0"
+          class="w-full px-4 py-2 border rounded-md"
+        />
+        <div *ngIf="recipeForm.get('prepTime')?.invalid && recipeForm.get('prepTime')?.touched" 
+             class="text-red-500 text-sm mt-1">
+          Prep time is required
+        </div>
+      </div>
+      <div>
+        <label for="cookTime" class="block mb-2">Cook Time (mins)</label>
+        <input
+          id="cookTime"
+          type="number"
+          formControlName="cookTime"
+          min="0"
+          class="w-full px-4 py-2 border rounded-md"
+        />
+        <div *ngIf="recipeForm.get('cookTime')?.invalid && recipeForm.get('cookTime')?.touched" 
+             class="text-red-500 text-sm mt-1">
+          Cook time is required
+        </div>
+      </div>
+      <div>
+        <label for="servings" class="block mb-2">Servings</label>
+        <input
+          id="servings"
+          type="number"
+          formControlName="servings"
+          min="1"
+          class="w-full px-4 py-2 border rounded-md"
+        />
+        <div *ngIf="recipeForm.get('servings')?.invalid && recipeForm.get('servings')?.touched" 
+             class="text-red-500 text-sm mt-1">
+          Servings is required
+        </div>
+      </div>
+    </div>
+
+    <!-- Ingredients -->
+    <div>
+      <label class="block mb-2">Ingredients</label>
+      <div formArrayName="ingredients">
+        <div *ngFor="let ingredient of ingredients.controls; let i = index" 
+             [formGroupName]="i" 
+             class="flex gap-2 mb-4">
+          <input
+            formControlName="amount"
+            placeholder="Amount"
+            class="flex-1 px-4 py-2 border rounded-md"
+          />
+          <input
+            formControlName="name"
+            placeholder="Ingredient"
+            class="flex-1 px-4 py-2 border rounded-md"
+          />
+          <button
+            type="button"
+            (click)="removeIngredient(i)"
+            [disabled]="ingredients.length === 1"
+            class="px-4 py-2 bg-red-500 text-white rounded-md disabled:opacity-50"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+      <button
+        type="button"
+        (click)="addIngredient()"
+        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+      >
+        Add Ingredient
+      </button>
+    </div>
+
+    <!-- Instructions -->
+    <div>
+      <label class="block mb-2">Instructions</label>
+      <div formArrayName="instructions">
+        <div *ngFor="let instruction of instructions.controls; let i = index" 
+             class="flex gap-2 mb-4">
+          <textarea
+            [formControlName]="i"
+            [placeholder]="'Step ' + (i + 1)"
+            class="flex-1 px-4 py-2 border rounded-md"
+            rows="3"
+          ></textarea>
+          <button
+            type="button"
+            (click)="removeInstruction(i)"
+            [disabled]="instructions.length === 1"
+            class="px-4 py-2 bg-red-500 text-white rounded-md disabled:opacity-50"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+      <button
+        type="button"
+        (click)="addInstruction()"
+        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+      >
+        Add Step
+      </button>
+    </div>
+
+    <!-- Tags -->
+    <div>
+      <label for="tags" class="block mb-2">Tags (comma separated)</label>
+      <input
+        id="tags"
+        type="text"
+        formControlName="tags"
+        placeholder="e.g. dessert, vegan, quick"
+        class="w-full px-4 py-2 border rounded-md"
+      />
+      <div *ngIf="recipeForm.get('tags')?.invalid && recipeForm.get('tags')?.touched" 
+           class="text-red-500 text-sm mt-1">
+        At least one tag is required
+      </div>
+    </div>
+
+    <!-- Image -->
+    <div>
+      <label class="block mb-2">Recipe Image</label>
+      <label for="image-upload" class="inline-block px-4 py-2 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600 m-4">
+        Select Image
+      </label>
+      <input
+        id="image-upload"
+        name="image"
+        type="file"
+        accept="image/*"
+        class="hidden"
+        (change)="onImageSelected($event)"
+      />
+      <div *ngIf="recipeForm.get('image')?.value" 
+           class="bg-gray-100 px-3 py-1 rounded text-sm mt-2 inline-block">
+        {{ recipeForm.get('image')?.value?.name }}
+      </div>
+      <div *ngIf="imagePreview" 
+           class="w-full bg-gray-50 rounded mt-4 flex justify-center items-center border border-gray-200" 
+           style="min-height: 200px;">
+        <img [src]="imagePreview" alt="Preview" class="w-full h-auto object-contain rounded" />
+      </div>
+      <div *ngIf="recipeForm.get('image')?.invalid && recipeForm.get('image')?.touched" 
+           class="text-red-500 text-sm mt-1">
+        Image is required
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <button
+      type="submit"
+      [disabled]="isSubmitting || recipeForm.invalid"
+      class="px-6 py-2 bg-blue-500 text-white rounded-md disabled:opacity-50"
+    >
+      <span *ngIf="isSubmitting">Publishing...</span>
+      <span *ngIf="!isSubmitting">Publish Recipe</span>
+    </button>
+  </form>
+</div>

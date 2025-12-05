@@ -1,0 +1,177 @@
+<div class="max-w-5xl mx-auto">
+  <div class="bg-white p-6 md:p-8 rounded-lg shadow-sm mb-8">
+    <div *ngIf="searchInput" class="mb-4 p-2 bg-gray-100 rounded-md">
+      <p class="text-sm">
+        Showing results for "{{ searchInput }}" ({{ filteredPosts.length }} found)
+        <button 
+          class="ml-2 p-0 h-auto text-blue-500 hover:underline" 
+          (click)="clearSearch()"
+        >
+          Clear
+        </button>
+      </p>
+    </div>
+
+    <!-- Filter Toggle Button -->
+    <div class="mb-4">
+      <button 
+        (click)="toggleFilters()"
+        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2"
+      >
+        <span>🔍</span>
+        <span>{{ showFilters ? 'Hide Filters' : 'Show Filters' }}</span>
+      </button>
+    </div>
+
+    <!-- Filters Section -->
+    <div *ngIf="showFilters" class="mb-6 p-4 bg-gray-50 rounded-lg">
+      <h3 class="font-semibold mb-4">Filter Recipes (OR logic - match any filter)</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Cuisine Filter -->
+        <div>
+          <label for="cuisine-filter" class="block text-sm font-medium mb-2">Cuisine</label>
+          <select 
+            id="cuisine-filter"
+            [(ngModel)]="selectedCuisine"
+            (change)="onFilterChange()"
+            class="w-full px-3 py-2 border rounded-md"
+          >
+            <option value="">All Cuisines</option>
+            <option *ngFor="let cuisine of availableCuisines" [value]="cuisine">
+              {{ cuisine }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Max Prep Time Filter -->
+        <div>
+          <label for="time-filter" class="block text-sm font-medium mb-2">
+            Max Cooking Time: {{ maxCookingTime || 'Any' }} min
+          </label>
+          <input 
+            id="time-filter"
+            type="range"
+            [(ngModel)]="maxCookingTime"
+            (input)="onFilterChange()"
+            min="0"
+            max="180"
+            step="15"
+            class="w-full"
+          />
+          <div class="flex justify-between text-xs text-gray-500 mt-1">
+            <span>0 min</span>
+            <span>180 min</span>
+          </div>
+        </div>
+
+        <!-- Ingredient Search Filter -->
+        <div>
+          <label for="ingredient-filter" class="block text-sm font-medium mb-2">Ingredient</label>
+          <input 
+            id="ingredient-filter"
+            type="text"
+            [(ngModel)]="ingredientSearch"
+            (input)="onFilterChange()"
+            placeholder="e.g., chicken, tomato"
+            class="w-full px-3 py-2 border rounded-md"
+          />
+        </div>
+      </div>
+
+      <!-- Clear Filters Button -->
+      <div class="mt-4 flex items-center gap-4">
+        <button 
+          (click)="clearFilters()"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+        >
+          Clear All Filters
+        </button>
+        <span class="text-sm text-gray-600">
+          Showing {{ filteredPosts.length }} of {{ posts.length }} recipes
+        </span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tabs-list grid w-full md:w-[400px] grid-cols-2 mb-6">
+        <button 
+          class="tab-trigger"
+          [class.active]="activeTab === 'forYou'"
+          (click)="setActiveTab('forYou')"
+        >
+          For You
+        </button>
+        <button 
+          class="tab-trigger"
+          [class.active]="activeTab === 'trending'"
+          (click)="setActiveTab('trending')"
+        >
+          Trending
+        </button>
+      </div>
+
+      <div *ngIf="loading" class="flex justify-center items-center h-64">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+
+      <div *ngIf="error" class="text-red-500 text-center p-4">{{ error }}</div>
+
+      <div *ngIf="!loading && !error">
+        <!-- No Results Message -->
+        <div *ngIf="filteredPosts.length === 0" class="text-center py-12">
+          <p class="text-gray-500 text-lg mb-4">No recipes found</p>
+          <button 
+            (click)="clearFilters(); clearSearch()"
+            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            Clear All Filters
+          </button>
+        </div>
+
+        <div *ngIf="activeTab === 'forYou' && filteredPosts.length > 0" class="mt-6">
+          <div class="grid gap-8 grid-cols-1 md:grid-cols-2">
+            <div
+              *ngFor="let post of filteredPosts"
+              class="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-lg transition-shadow"
+              (click)="router.navigate(['/recipe', post._id])"
+            >
+              <img *ngIf="post.imageUrl" [src]="post.imageUrl" [alt]="post.title" class="w-full h-48 object-cover rounded mb-2" />
+              <h3 class="font-bold text-lg mb-2">{{ post.title }}</h3>
+              <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ post.description }}</p>
+              <div class="mt-2 text-sm text-gray-500 flex items-center gap-4">
+                <span>By {{ post.author.username }}</span>
+                <span>•</span>
+                <span>{{ post.cookingTime }} min</span>
+                <span>•</span>
+                <span>{{ post.cuisine }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="activeTab === 'trending' && filteredPosts.length > 0" class="mt-6">
+          <div class="grid gap-8 grid-cols-1 md:grid-cols-2">
+            <div
+              *ngFor="let post of getSortedPosts()"
+              class="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-lg transition-shadow"
+              (click)="router.navigate(['/recipe', post._id])"
+            >
+              <img *ngIf="post.imageUrl" [src]="post.imageUrl" [alt]="post.title" class="w-full h-48 object-cover rounded mb-2" />
+              <h3 class="font-bold text-lg mb-2">{{ post.title }}</h3>
+              <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ post.description }}</p>
+              <div class="mt-2 text-sm text-gray-500 flex items-center gap-4">
+                <span>By {{ post.author.username }}</span>
+                <span>•</span>
+                <span>{{ post.cookingTime }} min</span>
+                <span>•</span>
+                <span>{{ post.cuisine }}</span>
+                <span>•</span>
+                <span>{{ (likesMap[post._id]?.likesCount || post.likes.length) }} likes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

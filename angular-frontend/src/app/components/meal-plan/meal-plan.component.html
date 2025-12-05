@@ -1,0 +1,108 @@
+<div class="container mx-auto py-8">
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">Meal Planning</h1>
+      <div class="flex gap-4 items-center">
+        <button (click)="previousWeek()" class="px-4 py-2 border rounded hover:bg-gray-50">← Previous</button>
+        <span class="font-medium">{{ getWeekRange() }}</span>
+        <button (click)="nextWeek()" class="px-4 py-2 border rounded hover:bg-gray-50">Next →</button>
+      </div>
+    </div>
+
+    <div class="flex gap-4 mb-6">
+      <button 
+        (click)="saveMealPlan()"
+        [disabled]="loading"
+        class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300">
+        Save Meal Plan
+      </button>
+      <button 
+        (click)="generateShoppingList()"
+        [disabled]="loading"
+        class="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300">
+        Generate Shopping List
+      </button>
+    </div>
+
+    <!-- Shopping List -->
+    <div *ngIf="showShoppingList" class="mb-6 p-4 bg-gray-50 rounded">
+      <h2 class="text-2xl font-bold mb-4">Shopping List</h2>
+      <div *ngFor="let category of getShoppingListCategories()" class="mb-4">
+        <h3 class="font-semibold text-lg mb-2">{{ category }}</h3>
+        <ul class="list-disc list-inside ml-4">
+          <li *ngFor="let item of shoppingList[category]">
+            {{ item.quantity }} {{ item.name }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Meal Plan Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-7 gap-4">
+      <div *ngFor="let meal of meals" class="border rounded p-4">
+        <h3 class="font-bold text-lg mb-4">{{ meal.day }}</h3>
+        
+        <!-- Breakfast -->
+        <div class="mb-4">
+          <h4 class="font-semibold mb-2">Breakfast</h4>
+          <div *ngIf="meal.breakfast" class="p-2 bg-gray-50 rounded mb-2">
+            <p class="text-sm font-medium">{{ meal.breakfast.title }}</p>
+            <button (click)="removeRecipe(meal.day, 'breakfast')" class="text-xs text-red-500 hover:underline">Remove</button>
+          </div>
+          <select 
+            (change)="onRecipeSelect(meal.day, 'breakfast', $event)"
+            class="w-full text-sm border rounded p-1">
+            <option value="">Select breakfast...</option>
+            <option *ngFor="let recipe of allRecipes" [value]="recipe._id">{{ recipe.title }}</option>
+          </select>
+        </div>
+
+        <!-- Lunch -->
+        <div class="mb-4">
+          <h4 class="font-semibold mb-2">Lunch</h4>
+          <div *ngIf="meal.lunch" class="p-2 bg-gray-50 rounded mb-2">
+            <p class="text-sm font-medium">{{ meal.lunch.title }}</p>
+            <button (click)="removeRecipe(meal.day, 'lunch')" class="text-xs text-red-500 hover:underline">Remove</button>
+          </div>
+          <select 
+            (change)="onRecipeSelect(meal.day, 'lunch', $event)"
+            class="w-full text-sm border rounded p-1">
+            <option value="">Select lunch...</option>
+            <option *ngFor="let recipe of allRecipes" [value]="recipe._id">{{ recipe.title }}</option>
+          </select>
+        </div>
+
+        <!-- Dinner -->
+        <div class="mb-4">
+          <h4 class="font-semibold mb-2">Dinner</h4>
+          <div *ngIf="meal.dinner" class="p-2 bg-gray-50 rounded mb-2">
+            <p class="text-sm font-medium">{{ meal.dinner.title }}</p>
+            <button (click)="removeRecipe(meal.day, 'dinner')" class="text-xs text-red-500 hover:underline">Remove</button>
+          </div>
+          <select 
+            (change)="onRecipeSelect(meal.day, 'dinner', $event)"
+            class="w-full text-sm border rounded p-1">
+            <option value="">Select dinner...</option>
+            <option *ngFor="let recipe of allRecipes" [value]="recipe._id">{{ recipe.title }}</option>
+          </select>
+        </div>
+
+        <!-- Snacks -->
+        <div>
+          <h4 class="font-semibold mb-2">Snacks</h4>
+          <div *ngFor="let snack of meal.snacks" class="p-2 bg-gray-50 rounded mb-2">
+            <p class="text-sm font-medium">{{ snack.title }}</p>
+            <button (click)="removeRecipe(meal.day, 'snacks', snack._id)" class="text-xs text-red-500 hover:underline">Remove</button>
+          </div>
+          <select 
+            (change)="onRecipeSelect(meal.day, 'snacks', $event)"
+            class="w-full text-sm border rounded p-1">
+            <option value="">Add snack...</option>
+            <option *ngFor="let recipe of allRecipes" [value]="recipe._id">{{ recipe.title }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

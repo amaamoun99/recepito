@@ -1,0 +1,114 @@
+<div class="container py-8 max-w-4xl">
+  <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+    <h1 class="text-3xl font-bold">Explore Users</h1>
+    
+    <div class="relative w-full md:w-72">
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+      <input
+        type="text"
+        placeholder="Search users..."
+        class="w-full pl-10 pr-10 px-4 py-2 border rounded-md"
+        [(ngModel)]="searchQuery"
+      />
+      <button
+        *ngIf="searchQuery"
+        (click)="clearSearch()"
+        class="absolute inset-y-0 right-0 flex items-center pr-3"
+        aria-label="Clear search"
+      >
+        <svg class="h-4 w-4 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+  
+  <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let i of [1,2,3,4,5,6]" class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center space-x-4">
+        <div class="h-12 w-12 rounded-full bg-gray-200 animate-pulse"></div>
+        <div class="space-y-2">
+          <div class="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+          <div class="h-3 w-32 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="h-8 w-full bg-gray-200 rounded animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let user of filteredUsers; let i = index" 
+           class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-center space-x-4">
+          <div class="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+            <img *ngIf="user?.profilePicture" 
+                 [src]="user.profilePicture?.startsWith('http') ? user.profilePicture : 'http://localhost:3000' + user.profilePicture" 
+                 [alt]="user?.username || 'User'"
+                 class="w-full h-full object-cover" />
+            <span *ngIf="!user?.profilePicture" class="text-gray-600 font-semibold">
+              {{ (user?.username || 'U').slice(0, 2).toUpperCase() }}
+            </span>
+          </div>
+          <div>
+            <h3 class="font-medium">{{ user?.username || 'Unknown User' }}</h3>
+            <p class="text-sm text-gray-500">
+              {{ user?.recipes?.length || 0 }} recipes
+            </p>
+          </div>
+        </div>
+        <div class="mt-4 flex gap-2">
+          <button 
+            *ngIf="currentUser && currentUser._id !== user._id"
+            (click)="toggleFollow(user._id, $event)"
+            [class.bg-blue-500]="isFollowing(user._id)"
+            [class.text-white]="isFollowing(user._id)"
+            [class.bg-gray-200]="!isFollowing(user._id)"
+            class="flex-1 px-4 py-2 rounded-md hover:bg-gray-300"
+          >
+            {{ isFollowing(user._id) ? 'Following' : 'Follow' }}
+          </button>
+          <button 
+            (click)="viewProfile(user._id)"
+            class="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+          >
+            View Profile
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="filteredUsers.length === 0 && searchQuery" 
+         class="text-center py-12 bg-gray-50 rounded-lg mt-6">
+      <h3 class="text-xl font-medium mb-2">No users found</h3>
+      <p class="text-gray-500">
+        No users match your search for "{{ searchQuery }}"
+      </p>
+      <button 
+        (click)="clearSearch()"
+        class="mt-4 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+      >
+        Clear Search
+      </button>
+    </div>
+
+    <div *ngIf="!loading && users.length === 0 && !searchQuery" 
+         class="text-center py-12 bg-gray-50 rounded-lg mt-6">
+      <h3 class="text-xl font-medium mb-2">No users found</h3>
+      <p class="text-gray-500">
+        There are no users registered in the system yet.
+      </p>
+    </div>
+  </div>
+</div>
+

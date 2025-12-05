@@ -1,0 +1,156 @@
+<div class="container mx-auto py-8">
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+  </div>
+
+  <div *ngIf="error" class="container mx-auto py-8">
+    <h1 class="text-3xl font-bold mb-4">Error</h1>
+    <p class="text-red-500">{{ error }}</p>
+  </div>
+
+  <div *ngIf="recipe && !loading && !error">
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <div class="flex justify-between items-start mb-4">
+        <div class="flex-1">
+          <h1 class="text-3xl font-bold mb-2">{{ recipe.title }}</h1>
+          <p class="text-gray-600 mb-4">{{ recipe.description }}</p>
+        </div>
+        <div class="flex gap-2">
+          <button 
+            (click)="toggleLike()" 
+            [class.text-red-500]="isLiked"
+            class="px-4 py-2 border rounded hover:bg-gray-50 flex items-center gap-2">
+            <span>{{ isLiked ? '❤️' : '🤍' }}</span>
+            <span>{{ recipe.likes?.length || 0 }}</span>
+          </button>
+          <button 
+            (click)="toggleSave()" 
+            [class.text-blue-500]="isSaved"
+            class="px-4 py-2 border rounded hover:bg-gray-50">
+            {{ isSaved ? '💾 Saved' : '💾 Save' }}
+          </button>
+        </div>
+      </div>
+      
+      <img *ngIf="recipe.imageUrl" [src]="recipe.imageUrl" [alt]="recipe.title" class="w-full h-64 object-cover rounded mb-4" />
+      
+      <div class="flex gap-4 text-sm text-gray-500 mb-4">
+        <span>{{ recipe.cookingTime }} min</span>
+        <span>{{ recipe.servings }} servings</span>
+        <span>{{ recipe.difficulty }}</span>
+        <span>{{ recipe.cuisine }}</span>
+      </div>
+
+      <!-- Rating Section -->
+      <div class="border-t pt-4 mt-4">
+        <div class="flex items-center gap-4 mb-2">
+          <div class="flex items-center">
+            <span class="text-2xl font-bold">{{ getAverageRating().toFixed(1) }}</span>
+            <span class="text-yellow-500 text-xl ml-2">⭐</span>
+            <span class="text-gray-500 ml-2">({{ recipe.ratings?.length || 0 }} ratings)</span>
+          </div>
+          <button 
+            *ngIf="currentUser"
+            (click)="showRatingForm = !showRatingForm"
+            class="text-sm text-blue-500 hover:underline">
+            {{ userRating > 0 ? 'Update Rating' : 'Rate this Recipe' }}
+          </button>
+        </div>
+
+        <!-- Rating Form -->
+        <div *ngIf="showRatingForm && currentUser" class="mt-4 p-4 bg-gray-50 rounded">
+          <label class="block mb-2">Your Rating (1-5 stars)</label>
+          <div class="flex gap-2 mb-4">
+            <button 
+              *ngFor="let i of [1,2,3,4,5]"
+              (click)="userRating = i"
+              [class.text-yellow-500]="i <= userRating"
+              class="text-2xl">
+              {{ i <= userRating ? '⭐' : '☆' }}
+            </button>
+          </div>
+          <textarea 
+            [(ngModel)]="userReview"
+            placeholder="Write a review (optional)"
+            class="w-full p-2 border rounded mb-2"
+            rows="3"></textarea>
+          <div class="flex gap-2">
+            <button 
+              (click)="submitRating()"
+              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+              Submit
+            </button>
+            <button 
+              (click)="showRatingForm = false"
+              class="px-4 py-2 border rounded hover:bg-gray-100">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+      <div class="md:col-span-2">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-2xl font-bold mb-4">Instructions</h2>
+          <ol class="list-decimal list-inside space-y-2">
+            <li *ngFor="let instruction of recipe.instructions; let i = index">
+              {{ instruction.step }}
+            </li>
+          </ol>
+        </div>
+      </div>
+      <div class="md:col-span-1">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-2xl font-bold mb-4">Ingredients</h2>
+          <ul class="list-disc list-inside space-y-2">
+            <li *ngFor="let ingredient of recipe.ingredients">
+              {{ ingredient.quantity }} {{ ingredient.name }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Comments Section -->
+    <div class="mt-8 bg-white rounded-lg shadow p-6">
+      <h2 class="text-2xl font-bold mb-4">Comments ({{ comments.length }})</h2>
+      
+      <!-- Add Comment Form -->
+      <div *ngIf="currentUser" class="mb-6">
+        <textarea 
+          [(ngModel)]="newComment"
+          placeholder="Write a comment..."
+          class="w-full p-3 border rounded mb-2"
+          rows="3"></textarea>
+        <button 
+          (click)="addComment()"
+          [disabled]="!newComment.trim()"
+          class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300">
+          Post Comment
+        </button>
+      </div>
+      <div *ngIf="!currentUser" class="mb-6 p-4 bg-gray-50 rounded">
+        <p class="text-gray-600">Please <a routerLink="/login" class="text-blue-500 hover:underline">login</a> to comment</p>
+      </div>
+
+      <!-- Comments List -->
+      <div *ngIf="comments.length > 0">
+        <div *ngFor="let comment of comments" class="border-b pb-4 mb-4 last:border-0">
+          <div class="flex items-start gap-3">
+            <div class="flex-1">
+              <p class="font-semibold">{{ comment.author?.username || 'Anonymous' }}</p>
+              <p class="text-gray-600 mt-1">{{ comment.content }}</p>
+              <p class="text-xs text-gray-400 mt-2">{{ comment.createdAt | date:'short' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="comments.length === 0" class="text-center py-8 text-gray-500">
+        No comments yet. Be the first to comment!
+      </div>
+    </div>
+  </div>
+</div>
+

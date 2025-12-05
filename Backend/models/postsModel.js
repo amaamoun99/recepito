@@ -72,6 +72,33 @@ const postSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    ratings: [{
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+      rating: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 5
+      },
+      review: {
+        type: String,
+        default: ""
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
+    averageRating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5
+    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -120,9 +147,18 @@ postSchema.methods.removeComment = async function (commentId) {
   return this.save();
 };
 
-// Update updatedAt field whenever the document is modified
+// Calculate average rating before saving
 postSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
+  
+  // Calculate average rating
+  if (this.ratings && this.ratings.length > 0) {
+    const sum = this.ratings.reduce((acc, rating) => acc + rating.rating, 0);
+    this.averageRating = Math.round((sum / this.ratings.length) * 10) / 10; // Round to 1 decimal
+  } else {
+    this.averageRating = 0;
+  }
+  
   next();
 });
 
